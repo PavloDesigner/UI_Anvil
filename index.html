@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="css/reset.css">
   <link rel="stylesheet" href="css/tokens.css?v=2">
   <link rel="stylesheet" href="css/themes.css?v=2">
-  <link rel="stylesheet" href="css/app.css?v=13">
+  <link rel="stylesheet" href="css/app.css?v=14">
   <link rel="stylesheet" href="css/previews.css?v=6">
 </head>
 <body>
@@ -505,14 +505,23 @@
     <div class="cg-modal">
       <!-- Header -->
       <div class="cg-header">
-        <div class="cg-header-left">
+        <div class="cg-header-top">
           <h2 class="cg-title">Contrast Grid</h2>
-          <!-- Palette tabs -->
-          <div class="cg-palette-tabs" id="cg-palette-tabs"></div>
+          <button class="icon-btn cg-close" id="cg-close" aria-label="Close contrast grid">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
         </div>
-        <button class="icon-btn cg-close" id="cg-close" aria-label="Close contrast grid">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-        </button>
+        <!-- Fg / Bg palette selectors -->
+        <div class="cg-pair-selectors">
+          <div class="cg-pair-row">
+            <span class="cg-pair-label">fg</span>
+            <div class="cg-palette-tabs" id="cg-fg-tabs"></div>
+          </div>
+          <div class="cg-pair-row">
+            <span class="cg-pair-label">bg</span>
+            <div class="cg-palette-tabs" id="cg-bg-tabs"></div>
+          </div>
+        </div>
       </div>
 
       <!-- Body: sidebar + grid -->
@@ -569,6 +578,6 @@
 
   <div class="tooltip" id="tooltip" role="tooltip" style="display:none"></div>
 
-  <script type="module" src="js/main.js?v=17"></script>
+  <script type="module" src="js/main.js?v=18"></script>
 </body>
 </html>
