@@ -2601,3 +2601,157 @@ body {
   .nav-link       { font-size: 11px; padding: 4px 6px; }
   .mobile-nav-btn { font-size: 9px; }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   MOBILE POLISH — comprehensive pass
+   Covers every section: sheet content, library, modals, preview
+   ═══════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* ── TOPBAR ─────────────────────────────────────────────────── */
+  .topbar-right { gap: 4px; }
+  /* Algorithm picker not needed in topbar on mobile */
+  #gen-picker { display: none; }
+
+  /* ── SHEET: palette sections ────────────────────────────────── */
+  .tab-content { padding: 0; }
+  .palette-section { padding: 12px 16px; }
+  .palette-section + .palette-section { padding-top: 12px; margin-top: 0; }
+  .palette-inputs { gap: 12px; }
+
+  /* Palette row controls — 40px touch targets throughout */
+  .palette-row__controls { gap: 8px; }
+  .hex-input { height: 40px; font-size: 13px; padding: 0 10px; border-radius: 8px; }
+  .color-swatch-btn { width: 40px; height: 40px; border-radius: 8px; }
+  .palette-row__controls .icon-btn { width: 40px; height: 40px; border-radius: 8px; }
+
+  /* ── SHEET: color wheel ─────────────────────────────────────── */
+  .color-wheel-section { padding: 8px 0 0; gap: 5px; }
+  #color-wheel-canvas  { width: 160px; height: 160px; }
+  .color-wheel-info    { font-size: 10px; min-height: 22px; }
+  .cw-chip             { font-size: 10px; }
+
+  /* ── SHEET: add secondary/tertiary ─────────────────────────── */
+  .add-brand-btns { padding: 0 16px 4px; gap: 8px; }
+  .add-color-btn  { min-height: 42px; font-size: 13px; border-radius: 10px; }
+
+  /* ── SHEET: fonts tab ───────────────────────────────────────── */
+  .fonts-tab  { padding: 4px 0 0; }
+  .fp-row     { padding: 8px 16px; gap: 10px; }
+  .fp-label   { font-size: 10.5px; min-width: 52px; }
+  .fp-trigger { height: 40px; font-size: 13px; border-radius: 8px; }
+  .fp-row .icon-btn { width: 40px; height: 40px; }
+  .fp-divider { margin: 4px 16px; }
+  .fp-dropdown { max-height: 50dvh; }
+
+  /* ── SHEET: footer settings ─────────────────────────────────── */
+  .sidebar-footer  { padding: 14px 16px 10px; }
+  .footer-settings { gap: 11px; }
+  .setting-label   { font-size: 11px; }
+  .scale-trigger--footer { height: 36px; font-size: 12px; }
+  .step-btn, .format-btn {
+    min-height: 34px; min-width: 34px;
+    font-size: 11.5px; border-radius: 6px;
+  }
+  .steps-control, .format-control { gap: 3px; }
+  .pill-toggle { min-height: 34px; }
+  /* Keyboard shortcut hints irrelevant on mobile */
+  .sidebar-footer kbd, .mobile-sheet-random kbd { display: none; }
+
+  /* ── SHEET: save + export actions ───────────────────────────── */
+  #sidebar-actions { padding: 10px 14px 14px; gap: 8px; }
+  #sidebar-actions .btn {
+    min-height: 44px; font-size: 13px; border-radius: 10px;
+  }
+  .save-picker--sidebar .save-popover {
+    width: calc(100vw - 28px);
+    left: 0; right: 0;
+    bottom: calc(100% + 6px);
+  }
+  .save-popover-input { font-size: 14px; height: 42px; }
+  .save-popover-actions { gap: 8px; }
+  .save-popover-actions .btn { min-height: 40px; flex: 1; justify-content: center; }
+
+  /* ── MY LIBRARY: header ─────────────────────────────────────── */
+  .mp-shell   { padding: 16px 14px 80px; }
+  .mp-header  { padding-bottom: 14px; flex-wrap: wrap; gap: 10px; }
+  .mp-title   { font-size: 19px; }
+  .mp-io-actions { gap: 6px; }
+  .mp-io-btn  { padding: 8px 14px; min-height: 36px; font-size: 12px; border-radius: 8px; }
+
+  /* ── MY LIBRARY: sections ───────────────────────────────────── */
+  .mp-section + .mp-section { margin-top: 24px; }
+  .mp-section-hd  { margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+  .mp-section-label { font-size: 13px; }
+  .mp-count       { font-size: 11px; }
+  .mp-section-hd .btn { min-height: 36px; font-size: 12px; padding: 0 14px; }
+
+  /* ── MY LIBRARY: palette cards ──────────────────────────────── */
+  .mp-grid { gap: 12px; }
+  .mp-card { border-radius: 12px; }
+  .mp-card-body { padding: 12px 14px 8px; gap: 4px; }
+  .mp-card-name { font-size: 13px; }
+  .mp-card-actions { padding: 8px 12px 12px; }
+  .mp-card-load { min-height: 38px; font-size: 12px; padding: 0 16px; border-radius: 8px; }
+  .mp-card-icon-btns .icon-btn { width: 38px; height: 38px; border-radius: 8px; }
+
+  /* ── MY LIBRARY: font pair cards ────────────────────────────── */
+  .mf-grid { gap: 12px; }
+  .mf-card { border-radius: 12px; }
+  .mf-card-preview { padding: 14px; min-height: 64px; }
+  .mf-preview-h { font-size: 14px; }
+  .mf-card-new-body { padding: 12px 14px; }
+  .mf-card .mp-card-actions { padding: 8px 12px 12px; }
+  .mf-card .mp-card-load { min-height: 38px; }
+  .mf-card .mp-card-icon-btns .icon-btn { width: 38px; height: 38px; }
+
+  /* ── MY LIBRARY: empty states ───────────────────────────────── */
+  .mp-empty { padding: 32px 20px; gap: 8px; }
+  .mp-empty-title { font-size: 14px; }
+  .mp-empty-sub   { font-size: 12px; text-align: center; }
+
+  /* ── MY LIBRARY: new-card form ──────────────────────────────── */
+  .mp-new-input { font-size: 14px; height: 42px; border-radius: 8px; }
+  .mp-new-actions { gap: 8px; }
+  .mp-new-actions .btn { min-height: 40px; flex: 1; justify-content: center; }
+  .mp-new-cancel  { font-size: 13px; min-height: 40px; min-width: 64px; }
+
+  /* ── EXPORT MODAL ───────────────────────────────────────────── */
+  .modal-header { padding: 16px 18px 14px; }
+  .modal-title  { font-size: 15px; }
+  .modal-tabs   {
+    overflow-x: auto; scrollbar-width: none;
+    padding: 0 14px; gap: 0; flex-shrink: 0;
+  }
+  .modal-tabs::-webkit-scrollbar { display: none; }
+  .modal-tab { white-space: nowrap; font-size: 12px; padding: 10px 12px; }
+  .modal-body { padding: 0; }
+  .code-output {
+    font-size: 11px; min-height: 180px;
+    max-height: 45dvh; padding: 14px;
+    border-radius: 0;
+  }
+  .copy-code-btn { top: 10px; right: 10px; }
+
+  /* ── TYPOGRAPHY PREVIEW ─────────────────────────────────────── */
+  .typo-preview { padding: 0; }
+  .typo-header  { padding: 12px 16px 8px; }
+  .typo-scale-badge { font-size: 10px; margin-top: 6px; }
+  .typo-scale-section, .typo-specimen-section,
+  .typo-body-section, .typo-css-section { padding: 10px 16px; }
+  .typo-scale-row { padding: 5px 0; gap: 8px; }
+  .typo-step-label { font-size: 10px; min-width: 28px; }
+  .typo-hspec-row { padding: 3px 0; }
+  .typo-hspec-tag { font-size: 10px; min-width: 22px; }
+  .typo-body-card { padding: 14px; }
+  .typo-css-section pre { font-size: 10px; padding: 12px; }
+}
+
+/* Tiny phones */
+@media (max-width: 360px) {
+  .palette-section { padding: 10px 12px; }
+  .hex-input { font-size: 12px; }
+  .fp-row    { padding: 8px 12px; }
+  .mp-shell  { padding: 14px 12px 80px; }
+  .mobile-nav-btn { font-size: 9px; gap: 3px; }
+}

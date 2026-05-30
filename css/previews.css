@@ -1616,4 +1616,84 @@
     font-size: clamp(13px, 4vw, 100px) !important;
   }
   .typo-badge-row { flex-wrap: wrap; gap: 6px; }
+
+  /* ── Shared cards ────────────────────────────────────────────── */
+  .card     { padding: 14px; border-radius: 10px; }
+  .chart-card { border-radius: 10px; }
+
+  /* ── Bar chart — smaller bars ────────────────────────────────── */
+  .bar-chart { height: 80px; gap: 4px; }
+  .bar-group { gap: 2px; }
+  .bar-chart-label { font-size: 9px; }
+
+  /* ── Activity list — show more info on taller devices ──────── */
+  .activity-item { gap: 8px; padding: 8px 0; }
+  .activity-name { font-size: 12px; }
+
+  /* ── System status ─────────────────────────────────────────── */
+
+  /* ── Alerts: hide dismiss button on small screens ──────────── */
+  .alert-dismiss { display: none; }
+
+  /* ── Tabs component: scrollable ───────────────────────────── */
+  .tabs-strip { overflow-x: auto; scrollbar-width: none; flex-wrap: nowrap; }
+  .tabs-strip::-webkit-scrollbar { display: none; }
+  .tab-component-btn { white-space: nowrap; }
+
+  /* ── Button gallery: wrap rows, reduce size ───────────────── */
+  .btn-gallery { gap: 10px; }
+  .btn-row { flex-wrap: wrap; gap: 6px; }
+  .pvw-btn--md { font-size: 12px; padding: 7px 14px; }
+
+  /* ── File upload: compact ─────────────────────────────────── */
+  .file-upload { padding: 16px; }
+  .file-upload-icon { width: 20px; height: 20px; }
+
+  /* ── Chips + badges: wrap ──────────────────────────────────── */
+  .chips-row { gap: 5px; }
+
+  /* ── Skeleton cards: tighter ──────────────────────────────── */
+  .skeleton-section { gap: 8px; }
+  .skeleton-card { padding: 12px; }
+
+  /* ── Toast preview stack ───────────────────────────────────── */
+  .toast-stack-preview { width: 100%; right: 0; left: 0; bottom: 8px; padding: 0 12px; }
+
+  /* ── Pricing: tighter on mobile ────────────────────────────── */
+  .pricing-price { font-size: 26px; }
+  .pricing-features { gap: 6px; margin-bottom: 14px; }
+  .pricing-feature  { font-size: 12px; }
+  .pricing-cta      { padding: 9px; font-size: 12px; }
+
+  /* ── Form inputs: bigger touch targets ─────────────────────── */
+  .form-input, .form-select, .form-textarea {
+    font-size: 16px;   /* prevents iOS zoom on focus */
+    border-radius: 8px;
+  }
+  .form-input { height: 44px; padding: 0 12px; }
+  .form-select { height: 44px; }
+
+  /* ── Toggle: bigger ─────────────────────────────────────────── */
+  .toggle-switch { width: 40px; height: 22px; }
+  .toggle-track::before { width: 16px; height: 16px; }
+  .toggle-switch input:checked + .toggle-track::before { transform: translateX(18px); }
+
+  /* ── Progress section: tighter ──────────────────────────────── */
+  .progress-section { gap: 10px; }
+  .progress-header  { font-size: 11.5px; }
+
+  /* ── Avatar group ────────────────────────────────────────────── */
+  .avatar-group { margin-bottom: 14px; }
+
+  /* ── Modal inline preview: smaller ─────────────────────────── */
+  .modal-preview-backdrop { min-height: 100px; }
+  .modal-inline-card { width: 90%; }
+  .modal-inline-header { padding: 14px 16px 10px; }
+  .modal-inline-footer { padding: 10px 16px; }
+
+  /* ── Newsletter: increase input font to prevent iOS zoom ────── */
+  .newsletter-input { font-size: 16px; }
+
+  /* ── Canvas padding with bottom room for last content ──────── */
+  .preview-canvas { padding: 12px 12px 28px; }
 }
