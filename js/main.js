@@ -94,6 +94,13 @@ function initMobileNav() {
     const tabBtn = document.querySelector(`.tab[data-tab="${sidebarTabId}"]`);
     if (tabBtn && !tabBtn.classList.contains('tab--active')) tabBtn.click();
 
+    // Show the tab-appropriate pinned random button
+    const btnColors = document.getElementById('mobile-random-colors');
+    const btnFonts  = document.getElementById('mobile-random-fonts');
+    const isColors  = sidebarTabId === 'brand';
+    if (btnColors) btnColors.style.display = isColors ? '' : 'none';
+    if (btnFonts)  btnFonts.style.display  = isColors ? 'none' : '';
+
     sidebar?.classList.add('mobile-sheet--open');
     backdrop?.classList.add('is-visible');
     document.body.style.overflow = 'hidden';
@@ -113,9 +120,11 @@ function initMobileNav() {
   /* ── Backdrop tap closes sheet ─────────────────────────────── */
   backdrop?.addEventListener('click', closeSheet);
 
-  /* ── Mobile random bar — fires both colors + fonts random ─── */
-  document.getElementById('mobile-random-action')?.addEventListener('click', () => {
+  /* ── Bottom-pinned random buttons (tab-specific) ───────────── */
+  document.getElementById('mobile-random-colors')?.addEventListener('click', () => {
     document.getElementById('random-btn')?.click();
+  });
+  document.getElementById('mobile-random-fonts')?.addEventListener('click', () => {
     document.getElementById('random-fonts-btn')?.click();
   });
 

@@ -2406,11 +2406,11 @@ body {
    ═══════════════════════════════════════════════════════════════ */
 
 /* Desktop: these new elements are invisible / transparent */
-.mobile-nav          { display: none; }
-.mobile-backdrop     { display: none; }
-.sidebar-handle      { display: none; }
-.mobile-random-bar   { display: none; }
-.sidebar-scroll-body { display: contents; }  /* transparent wrapper on desktop */
+.mobile-nav           { display: none; }
+.mobile-backdrop      { display: none; }
+.sidebar-handle       { display: none; }
+.mobile-sheet-random  { display: none; }
+.sidebar-scroll-body  { display: contents; }  /* transparent wrapper on desktop */
 
 @media (max-width: 768px) {
 
@@ -2479,13 +2479,18 @@ body {
   }
   .sidebar-handle:active { cursor: grabbing; }
 
-  /* ── Mobile random bar — pinned at top of sheet ──────────── */
-  .mobile-random-bar {
+  /* ── Mobile random — pinned at sheet bottom above Save/Export */
+  .mobile-sheet-random {
     display: flex;
     flex-shrink: 0;
-    padding: 8px 14px 4px;
+    padding: 10px 14px 0;
+    border-top: 1px solid var(--chrome-border);
+    background: var(--chrome-bg);
   }
-  .mobile-random-bar .random-btn { flex: 1; }
+  .mobile-sheet-random .random-btn { flex: 1; }
+
+  /* ── Original random buttons inside footer — hidden ─────── */
+  #random-btn, #random-fonts-btn { display: none; }
 
   /* ── Scrollable body of the sheet ───────────────────────── */
   .sidebar-scroll-body {
@@ -2501,9 +2506,6 @@ body {
 
   /* ── Tab strip — hidden; bottom nav replaces it ─────────── */
   .tab-strip { display: none; }
-
-  /* ── Original random buttons inside footer — hidden ─────── */
-  #random-btn, #random-fonts-btn { display: none; }
 
   /* ── Sidebar actions — pinned at bottom of sheet ─────────── */
   #sidebar-actions { flex-shrink: 0; }
