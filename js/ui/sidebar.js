@@ -279,48 +279,92 @@ function initBottomControls() {
 /* Canonical hues for status palettes — vary sat/lightness only */
 const CANONICAL_HUES = { success: 140, warning: 38, info: 215, error: 8 };
 
+/* Harmony-to-hue-offset table (brand=0, brand2=1, brand3=2, neutral=3) */
+const HARMONY_NAMES   = ['brand', 'brand2', 'brand3', 'neutral'];
+function harmonyOffsets(h) {
+  switch (h) {
+    case 'mono':                return [0,   0,   0,   0];
+    case 'analogous':           return [0,  30, -30,  15];
+    case 'complementary':       return [0, 180, 200, -20];
+    case 'split-complementary': return [0, 150, 210,   0];
+    case 'triadic':             return [0, 120, 240,  60];
+    case 'tetradic':            return [0,  60, 180, 240];
+    case 'square':              return [0,  90, 180, 270];
+    default:                    return null; // auto — no fixed relationship
+  }
+}
+
+/**
+ * When the user picks a new harmony, rotate all unlocked non-status palette
+ * hues to satisfy the harmonic relationship.
+ * Anchor = first locked palette (or brand if nothing is locked).
+ * Saturation + lightness of each palette are preserved — only hue rotates.
+ */
+function _applyHarmony(harmonyValue) {
+  const offs = harmonyOffsets(harmonyValue);
+  if (!offs) return; // 'auto' → nothing to enforce
+
+  const { palettes } = getState();
+
+  // Determine anchor: first locked palette in the harmony group, else brand
+  let anchorHue = null, anchorOffset = 0;
+  for (let i = 0; i < HARMONY_NAMES.length; i++) {
+    const p = palettes[HARMONY_NAMES[i]];
+    if (p?.locked) {
+      const rgb = hexToRgb(p.input);
+      if (rgb) { anchorHue = rgbToHsl(rgb).h; anchorOffset = offs[i] ?? 0; break; }
+    }
+  }
+  if (anchorHue === null) {
+    // No locks → anchor to brand's current hue
+    const rgb = hexToRgb(palettes.brand?.input || '#5eb1cb');
+    anchorHue = rgb ? rgbToHsl(rgb).h : 0;
+    anchorOffset = offs[0];
+  }
+
+  const baseH = ((anchorHue - anchorOffset) + 720) % 360;
+
+  HARMONY_NAMES.forEach((name, i) => {
+    const p = palettes[name];
+    if (!p || p.locked) return;
+
+    const rgb = hexToRgb(p.input);
+    if (!rgb) return;
+    const { s, l } = rgbToHsl(rgb); // keep saturation + lightness
+    const newH     = (baseH + offs[i] + 360) % 360;
+    const newRgb   = hslToRgb({ h: newH, s, l });
+    const hex      = rgbToHex({ r: Math.round(newRgb.r), g: Math.round(newRgb.g), b: Math.round(newRgb.b) });
+
+    setPaletteInput(name, hex);
+    const hexIn  = document.getElementById(`hex-${name}`);
+    const picker = document.getElementById(`picker-${name}`);
+    if (hexIn)  hexIn.value  = hex;
+    if (picker) picker.value = hex;
+    updateSwatchPreview(name, hex);
+  });
+}
+
 function doRandom() {
   const state = getState();
   const { harmony } = state;
   const palettes = state.palettes;
 
-  // Returns [brand, brand2, brand3, neutral] hue offsets from baseH
-  function harmonyOffsets(h) {
-    switch(h) {
-      case 'mono':               return [0, 0, 0, 0];
-      case 'analogous':          return [0, 30, -30, 15];
-      case 'complementary':      return [0, 180, 180 + 20, -20];
-      case 'split-complementary':return [0, 150, 210, 0];
-      case 'triadic':            return [0, 120, 240, 60];
-      case 'tetradic':           return [0, 60, 180, 240];
-      case 'square':             return [0, 90, 180, 270];
-      default:                   return [Math.random()*360, Math.random()*360, Math.random()*360, Math.random()*360];
-    }
-  }
-
-  const offsets = harmonyOffsets(harmony);
-
-  // Determine baseH:
-  // If a harmony is active and any non-status palette is locked,
-  // back-calculate baseH from its hue so all unlocked colors stay in harmony.
-  // e.g. if brand2 (offset index 1, +30°) is locked at hue 200°,
-  //      baseH = 200 - 30 = 170°, and brand will be generated at 170°.
-  const HARMONY_NAMES = ['brand', 'brand2', 'brand3', 'neutral'];
+  // Determine baseH anchored to any locked palette (or random if none locked)
   let baseH;
-  if (harmony !== 'auto') {
+  if (offs) {
     let anchorHue = null, anchorOffset = 0;
     for (let i = 0; i < HARMONY_NAMES.length; i++) {
       const p = palettes[HARMONY_NAMES[i]];
       if (p?.locked) {
         const rgb = hexToRgb(p.input);
-        if (rgb) { anchorHue = rgbToHsl(rgb).h; anchorOffset = offsets[i] ?? 0; break; }
+        if (rgb) { anchorHue = rgbToHsl(rgb).h; anchorOffset = offs[i] ?? 0; break; }
       }
     }
     baseH = anchorHue !== null
-      ? ((anchorHue - anchorOffset) + 720) % 360   // derived from locked hue
-      : Math.random() * 360;                         // fully random
+      ? ((anchorHue - anchorOffset) + 720) % 360
+      : Math.random() * 360;
   } else {
-    baseH = Math.random() * 360; // unused in auto mode
+    baseH = Math.random() * 360; // auto mode: each palette picks its own random hue
   }
 
   // brand=0, brand2=1, brand3=2, neutral=3, then status palettes
@@ -332,10 +376,10 @@ function doRandom() {
     let h;
     if (CANONICAL_HUES[name] !== undefined) {
       h = (CANONICAL_HUES[name] + (Math.random() * 30 - 15) + 360) % 360;
-    } else if (harmony === 'auto') {
-      h = Math.random() * 360;
+    } else if (!offs) {
+      h = Math.random() * 360; // auto
     } else {
-      h = (baseH + (offsets[Math.min(i, offsets.length - 1)] || 0) + 360) % 360;
+      h = (baseH + (offs[Math.min(i, offs.length - 1)] || 0) + 360) % 360;
     }
 
     const s = name === 'neutral' ? 4 + Math.random() * 8 : 58 + Math.random() * 30;
@@ -531,7 +575,7 @@ function initHarmonyPicker() {
       dropdown.querySelectorAll('.scale-option').forEach(o =>
         o.classList.toggle('scale-option--active', o.dataset.value === h.value));
       closePicker();
-      _applyHarmonyToNeutral(h.value);
+      _applyHarmony(h.value);   // rotate all unlocked palettes to the new harmony
     });
     dropdown.appendChild(opt);
   });
