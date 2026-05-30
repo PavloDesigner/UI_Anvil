@@ -35,6 +35,10 @@ function showView(view) {
   const genPicker = document.getElementById('gen-picker');
   if (genPicker) genPicker.style.visibility = isGenerate ? '' : 'hidden';
 
+  // Mobile nav only relevant on generate view
+  const mobileNav = document.getElementById('mobile-nav');
+  if (mobileNav) mobileNav.style.display = isGenerate ? '' : 'none';
+
   if (!isGenerate) {
     renderMyPalettes();
     renderMyFonts();
@@ -64,6 +68,7 @@ async function main() {
   initMyFonts({
     onNavigateToGenerate: () => showView('generate'),
   });
+  initMobileNav();
 }
 
 function initNavLinks() {
@@ -73,6 +78,110 @@ function initNavLinks() {
       showView(link.dataset.view);
     });
   });
+}
+
+function initMobileNav() {
+  const sidebar   = document.querySelector('.sidebar');
+  const backdrop  = document.getElementById('mobile-backdrop');
+  const handle    = document.getElementById('sidebar-handle');
+  const isMobile  = () => window.matchMedia('(max-width: 768px)').matches;
+
+  /* ── Sheet open / close ────────────────────────────────────── */
+  function openSheet(sidebarTabId) {
+    if (!isMobile()) return;
+
+    // Switch sidebar tab to the requested panel
+    const tabBtn = document.querySelector(`.tab[data-tab="${sidebarTabId}"]`);
+    if (tabBtn && !tabBtn.classList.contains('tab--active')) tabBtn.click();
+
+    sidebar?.classList.add('mobile-sheet--open');
+    backdrop?.classList.add('is-visible');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeSheet() {
+    sidebar?.classList.remove('mobile-sheet--open');
+    backdrop?.classList.remove('is-visible');
+    document.body.style.overflow = '';
+    // deactivate all sheet-opening nav buttons
+    document.querySelectorAll('.mobile-nav-btn[data-mobile-tab="colors"],'
+      + '.mobile-nav-btn[data-mobile-tab="fonts"]').forEach(b => {
+      b.classList.remove('mobile-nav-btn--active');
+    });
+  }
+
+  /* ── Backdrop tap closes sheet ─────────────────────────────── */
+  backdrop?.addEventListener('click', closeSheet);
+
+  /* ── Bottom nav buttons ────────────────────────────────────── */
+  document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.mobileTab;
+
+      if (tab === 'random') {
+        document.getElementById('random-btn')?.click();
+        return;
+      }
+      if (tab === 'export') {
+        document.getElementById('export-btn')?.click();
+        return;
+      }
+
+      // Toggle: tap same open tab → close
+      const isOpen = sidebar?.classList.contains('mobile-sheet--open');
+      const currentTabId = tab === 'colors' ? 'brand' : 'fonts';
+      if (isOpen && btn.classList.contains('mobile-nav-btn--active')) {
+        closeSheet();
+        return;
+      }
+
+      // Deactivate other sheet btns, activate this one
+      document.querySelectorAll('.mobile-nav-btn[data-mobile-tab="colors"],'
+        + '.mobile-nav-btn[data-mobile-tab="fonts"]').forEach(b => b.classList.remove('mobile-nav-btn--active'));
+      btn.classList.add('mobile-nav-btn--active');
+
+      openSheet(currentTabId);
+    });
+  });
+
+  /* ── Drag-to-close on sheet handle ────────────────────────── */
+  if (handle && sidebar) {
+    let startY = 0, startTranslate = 0, dragging = false;
+
+    handle.addEventListener('pointerdown', e => {
+      dragging   = true;
+      startY     = e.clientY;
+      startTranslate = 0;
+      sidebar.style.transition = 'none';
+      handle.setPointerCapture(e.pointerId);
+    });
+
+    handle.addEventListener('pointermove', e => {
+      if (!dragging) return;
+      const dy = Math.max(0, e.clientY - startY);   // only downward
+      sidebar.style.transform = `translateY(${dy}px)`;
+      startTranslate = dy;
+      // Fade backdrop proportionally
+      const pct = Math.min(dy / 200, 1);
+      if (backdrop) backdrop.style.opacity = String(1 - pct);
+    });
+
+    handle.addEventListener('pointerup', () => {
+      if (!dragging) return;
+      dragging = false;
+      sidebar.style.transition = '';
+      sidebar.style.transform  = '';
+      if (backdrop) backdrop.style.opacity = '';
+      if (startTranslate > 90) closeSheet();
+    });
+
+    handle.addEventListener('pointercancel', () => {
+      dragging = false;
+      sidebar.style.transition = '';
+      sidebar.style.transform  = '';
+      if (backdrop) backdrop.style.opacity = '';
+    });
+  }
 }
 
 /* Export modal */
