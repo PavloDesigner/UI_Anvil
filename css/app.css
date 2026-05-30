@@ -2983,34 +2983,81 @@ body {
 
 /* Mobile */
 @media (max-width: 768px) {
+  /* ── Overlay: slide up from bottom ───────────────────────── */
   .cg-overlay { padding: 0; align-items: flex-end; }
+
+  /* ── Modal: explicit height so flex children can fill it ─── */
   .cg-modal {
     width: 100%;
-    max-height: 92dvh;
+    height: 88dvh;          /* explicit — max-height alone breaks child flex */
+    max-height: 88dvh;
     border-radius: 20px 20px 0 0;
   }
-  .cg-body { flex-direction: column; }
+
+  /* ── Body: column direction, fills remaining space ─────────── */
+  .cg-body {
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;           /* critical: lets flex child shrink below content size */
+    overflow: hidden;
+  }
+
+  /* ── Sidebar: compact horizontal scrolling strip ───────────── */
   .cg-sidebar {
     width: 100%;
+    height: auto;
+    flex-shrink: 0;
     border-right: none;
     border-bottom: 1px solid oklch(20% 0.01 265);
     flex-direction: row;
-    flex-wrap: wrap;
-    gap: 8px 16px;
-    padding: 12px 14px;
+    flex-wrap: nowrap;       /* single row, scrolls horizontally */
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
     overflow-x: auto;
     overflow-y: visible;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
   }
+  .cg-sidebar::-webkit-scrollbar { display: none; }
   .cg-section-label { display: none; }
-  .cg-mode-row { flex-direction: row; }
-  .cg-thr-list { flex-direction: row; flex-wrap: wrap; gap: 3px; }
-  .cg-thr-btn, .cg-mode-btn { padding: 6px 10px; font-size: 12px; }
+  .cg-mode-row { flex-direction: row; flex-shrink: 0; gap: 2px; }
+  .cg-thr-list { flex-direction: row; flex-wrap: nowrap; flex-shrink: 0; gap: 2px; }
+  .cg-thr-btn, .cg-mode-btn {
+    padding: 5px 10px; font-size: 11.5px;
+    white-space: nowrap; flex-shrink: 0;
+  }
   .cg-thr-desc { display: none; }
-  .cg-header { padding: 12px 14px 10px; gap: 8px; }
-  .cg-pair-selectors { gap: 5px; }
+
+  /* Divider between mode and threshold groups */
+  .cg-sidebar > .cg-mode-row + .cg-thr-list::before {
+    content: '';
+    display: block;
+    width: 1px;
+    height: 18px;
+    background: oklch(28% 0.01 265);
+    flex-shrink: 0;
+    margin: 0 2px;
+  }
+
+  /* ── Grid content: fills remaining height, scrolls both axes ─ */
+  .cg-content {
+    flex: 1;
+    min-height: 0;           /* same critical fix */
+    overflow: auto;          /* x + y scroll */
+    padding: 12px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* ── Header: compact ───────────────────────────────────────── */
+  .cg-header { padding: 12px 14px 8px; gap: 6px; }
+  .cg-header-top { margin-bottom: 2px; }
+  .cg-pair-selectors { gap: 4px; }
   .cg-pair-row { gap: 6px; }
-  .cg-palette-tabs { gap: 2px; overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; }
+  .cg-palette-tabs {
+    gap: 2px; flex-wrap: nowrap; overflow-x: auto;
+    scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
   .cg-palette-tabs::-webkit-scrollbar { display: none; }
   .cg-pal-btn { font-size: 11px; padding: 3px 8px; white-space: nowrap; }
-  .cg-content { padding: 12px; }
 }
