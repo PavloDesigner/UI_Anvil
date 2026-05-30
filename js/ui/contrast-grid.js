@@ -141,6 +141,7 @@ function _renderModeBtns() {
     btn.onclick = () => {
       _mode = btn.dataset.mode;
       _threshold = DEFAULT_THR[_mode];
+      _renderModeBtns();
       _renderThresholdBtns();
       _renderGrid();
     };
