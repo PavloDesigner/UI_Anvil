@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UI Colors — Semantic Color Palette Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Azeret+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/tokens.css?v=2">
+  <link rel="stylesheet" href="css/themes.css?v=2">
+  <link rel="stylesheet" href="css/app.css?v=6">
+  <link rel="stylesheet" href="css/previews.css?v=4">
+</head>
+<body>
+  <header class="topbar" role="banner">
+    <div class="topbar-left">
+      <div class="logo" aria-label="AVIL">
+        <svg class="logo-mark" height="22" viewBox="0 0 186 109" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0 12L99 12L99 89H115V39.0001L151 48.0001L143 89C155.704 89 167.46 95.7156 173.914 106.658L175 108.5H39.5L41.8128 105.031C48.4896 95.0156 59.7299 89 71.7666 89H73L53.5 39.5001C53.5 39.5001 13.5 39.5001 0 12Z" fill="var(--color-brand-500,#F05A28)"/>
+          <path d="M115 0H185.5L175 33.0001H115V0Z" fill="var(--color-brand-400,#F05A28)"/>
+        </svg>
+        <svg class="logo-text" height="16" viewBox="0 0 330 99" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M46.0947 0.0410156L53.3799 0L100.476 98.2412L76.7061 98.3291L70.0488 82.8125L30.3867 82.8213L23.8711 98.3125L0 98.2979L46.0947 0.0410156ZM49.6777 35.3184L37.8311 65.4482L62.0596 65.5234L49.6777 35.3184Z" fill="currentColor"/>
+          <path d="M230.375 32.6973L254.231 32.8311L225.556 98.2969L208.448 98.126L179.443 32.7891L203.051 32.6973L216.866 71.8779L230.375 32.6973Z" fill="currentColor"/>
+          <path d="M150.021 31.375C163.251 30.1638 173.155 36.1599 175.83 49.6172C175.83 50.4788 176.675 98.3242 176.675 98.3242L153.721 98.3193C153.721 98.3193 153.721 72.585 151.899 53.7988C151.494 49.6172 144.5 44.9788 132.559 53.6035L132.51 98.3701L109.8 98.3447C109.8 98.3447 109.784 54.5999 109.788 32.7383L128.757 32.7373C128.757 32.7373 128.757 32.7373 131.2 39.1641C131.2 39.1641 141.572 32.1128 150.021 31.375Z" fill="currentColor"/>
+          <path d="M320.716 0.00976562L320.847 76.9941C321.122 83.1279 324.882 82.8793 329.88 82.4346L329.874 95.0752C325.588 97.3777 320.995 98.1954 316.136 98.2471C297.936 98.4412 298.35 86.1144 298.354 72.585L298.378 0.00683594L320.716 0.00976562Z" fill="currentColor"/>
+          <path d="M261.498 32.7305L284.539 32.7637L284.507 98.1748L261.47 98.1777L261.498 32.7305Z" fill="currentColor"/>
+          <path d="M272.051 0.0732422C279.147 -0.422553 285.309 4.91888 285.824 12.0156C286.341 19.1125 281.018 25.2886 273.923 25.8252C266.8 26.3638 260.593 21.0144 260.074 13.8887C259.555 6.76317 264.924 0.571158 272.051 0.0732422Z" fill="currentColor"/>
+        </svg>
+      </div>
+      <nav class="topbar-nav" aria-label="Main navigation">
+        <a href="#" class="nav-link nav-link--active" data-view="generate">Generate</a>
+        <a href="#" class="nav-link" data-view="my-palettes">My library</a>
+      </nav>
+    </div>
+    <div class="topbar-right">
+      <button id="theme-toggle" class="icon-btn" aria-label="Toggle light/dark theme" title="Toggle theme">
+        <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-shell" id="app-shell">
+    <aside class="sidebar" role="complementary" aria-label="Palette controls">
+      <div class="sidebar-header">
+        <h1 class="sidebar-title">Color Palette</h1>
+        <p class="sidebar-desc">Generate semantic color scales for your design system.</p>
+      </div>
+
+      <div class="tab-strip" role="tablist" aria-label="Color categories">
+        <button class="tab tab--active" role="tab" aria-selected="true" data-tab="brand">Colors</button>
+        <button class="tab" role="tab" aria-selected="false" data-tab="fonts">Fonts</button>
+      </div>
+
+      <div class="tab-content">
+        <!-- Colors tab (Brand + Neutral + Status merged) -->
+        <div class="tab-panel tab-panel--active" id="tab-brand" role="tabpanel">
+          <div class="palette-section">
+          <div id="brand-inputs" class="palette-inputs">
+            <div class="palette-row" data-palette="brand">
+              <div class="palette-row__header">
+                <span class="palette-row__label">Primary</span>
+              </div>
+              <div class="palette-row__controls">
+                <button class="color-swatch-btn" data-palette="brand" aria-label="Open brand color picker">
+                  <span class="color-swatch-preview" id="swatch-preview-brand"></span>
+                </button>
+                <input type="color" class="color-picker-native" id="picker-brand" aria-label="Brand color picker">
+                <input type="text" class="hex-input" id="hex-brand" maxlength="9" placeholder="#5eb1cb" value="#5eb1cb" aria-label="Brand hex color">
+                <button class="icon-btn lock-btn" id="lock-brand" data-palette="brand" aria-label="Lock brand palette" title="Lock">
+                  <svg class="icon-unlock" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+                  <svg class="icon-lock" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                </button>
+                <button class="icon-btn eyedropper-btn" data-palette="brand" aria-label="Pick brand color from screen">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="palette-row palette-row--secondary" id="brand-secondary-row" data-palette="brand2" style="display:none">
+              <div class="palette-row__header">
+                <span class="palette-row__label">Secondary</span>
+                <button class="icon-btn remove-btn" id="remove-brand2" aria-label="Remove secondary brand color">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </button>
+              </div>
+              <div class="palette-row__controls">
+                <button class="color-swatch-btn" data-palette="brand2" aria-label="Open secondary brand color picker">
+                  <span class="color-swatch-preview" id="swatch-preview-brand2"></span>
+                </button>
+                <input type="color" class="color-picker-native" id="picker-brand2" aria-label="Secondary brand color picker">
+                <input type="text" class="hex-input" id="hex-brand2" maxlength="9" placeholder="#a78bfa" value="#a78bfa" aria-label="Secondary brand hex color">
+                <button class="icon-btn lock-btn" id="lock-brand2" data-palette="brand2" aria-label="Lock secondary palette">
+                  <svg class="icon-unlock" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+                  <svg class="icon-lock" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                </button>
+                <button class="icon-btn eyedropper-btn" data-palette="brand2" aria-label="Pick secondary color from screen">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="palette-row palette-row--secondary" id="brand-tertiary-row" data-palette="brand3" style="display:none">
+              <div class="palette-row__header">
+                <span class="palette-row__label">Tertiary</span>
+                <button class="icon-btn remove-btn" id="remove-brand3" aria-label="Remove tertiary brand color">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </button>
+              </div>
+              <div class="palette-row__controls">
+                <button class="color-swatch-btn" data-palette="brand3" aria-label="Open tertiary brand color picker">
+                  <span class="color-swatch-preview" id="swatch-preview-brand3"></span>
+                </button>
+                <input type="color" class="color-picker-native" id="picker-brand3" aria-label="Tertiary brand color picker">
+                <input type="text" class="hex-input" id="hex-brand3" maxlength="9" placeholder="#f97316" value="#f97316" aria-label="Tertiary brand hex color">
+                <button class="icon-btn lock-btn" id="lock-brand3" data-palette="brand3" aria-label="Lock tertiary palette">
+                  <svg class="icon-unlock" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+                  <svg class="icon-lock" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                </button>
+                <button class="icon-btn eyedropper-btn" data-palette="brand3" aria-label="Pick tertiary color from screen">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Harmony color wheel -->
+          <div class="color-wheel-section">
+            <canvas id="color-wheel-canvas" aria-label="Harmony color wheel" role="img"></canvas>
+            <div class="color-wheel-info" id="color-wheel-info"></div>
+          </div>
+
+          <div class="add-brand-btns">
+            <button class="add-color-btn" id="add-secondary-btn">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+              Add secondary color scale
+            </button>
+            <button class="add-color-btn" id="add-tertiary-btn" style="display:none">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+              Add tertiary color scale
+            </button>
+          </div>
+          </div><!-- end .palette-section (brand) -->
+
+          <!-- Neutral section -->
+          <div class="palette-section">
+            <div class="palette-section-header">
+              <span class="palette-section-title">Neutral</span>
+            </div>
+            <div class="palette-inputs">
+              <div class="palette-row" data-palette="neutral">
+                <div class="palette-row__header">
+                  <span class="palette-row__label">Gray scale</span>
+                </div>
+                <div class="palette-row__controls">
+                  <button class="color-swatch-btn" data-palette="neutral" aria-label="Open neutral color picker">
+                    <span class="color-swatch-preview" id="swatch-preview-neutral"></span>
+                  </button>
+                  <input type="color" class="color-picker-native" id="picker-neutral">
+                  <input type="text" class="hex-input" id="hex-neutral" maxlength="9" placeholder="#71717a" value="#71717a" aria-label="Neutral hex color">
+                  <button class="icon-btn lock-btn" id="lock-neutral" data-palette="neutral" aria-label="Lock neutral palette">
+                    <svg class="icon-unlock" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+                    <svg class="icon-lock" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  </button>
+                  <button class="icon-btn eyedropper-btn" data-palette="neutral" aria-label="Pick neutral color from screen">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div><!-- end .palette-section (neutral) -->
+
+          <!-- Status section -->
+          <div class="palette-section">
+            <div class="palette-section-header">
+              <span class="palette-section-title">Status</span>
+              <button class="auto-suggest-btn auto-suggest-btn--inline" id="auto-suggest-btn">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72Z"/><path d="m14 7 3 3"/></svg>
+                Auto-suggest
+              </button>
+            </div>
+            <div class="palette-inputs">
+              <div class="palette-row" data-palette="success">
+                <div class="palette-row__header">
+                  <span class="palette-row__label"><span class="status-dot status-dot--success"></span>Success</span>
+                </div>
+                <div class="palette-row__controls">
+                  <button class="color-swatch-btn" data-palette="success" aria-label="Open success color picker"><span class="color-swatch-preview" id="swatch-preview-success"></span></button>
+                  <input type="color" class="color-picker-native" id="picker-success">
+                  <input type="text" class="hex-input" id="hex-success" maxlength="9" value="#22c55e" aria-label="Success hex color">
+                  <button class="icon-btn lock-btn" id="lock-success" data-palette="success" aria-label="Lock success palette">
+                    <svg class="icon-unlock" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+                    <svg class="icon-lock" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  </button>
+                </div>
+              </div>
+              <div class="palette-row" data-palette="warning">
+                <div class="palette-row__header">
+                  <span class="palette-row__label"><span class="status-dot status-dot--warning"></span>Warning</span>
+                </div>
+                <div class="palette-row__controls">
+                  <button class="color-swatch-btn" data-palette="warning" aria-label="Open warning color picker"><span class="color-swatch-preview" id="swatch-preview-warning"></span></button>
+                  <input type="color" class="color-picker-native" id="picker-warning">
+                  <input type="text" class="hex-input" id="hex-warning" maxlength="9" value="#f59e0b" aria-label="Warning hex color">
+                  <button class="icon-btn lock-btn" id="lock-warning" data-palette="warning" aria-label="Lock warning palette">
+                    <svg class="icon-unlock" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+                    <svg class="icon-lock" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  </button>
+                </div>
+              </div>
+              <div class="palette-row" data-palette="info">
+                <div class="palette-row__header">
+                  <span class="palette-row__label"><span class="status-dot status-dot--info"></span>Info</span>
+                </div>
+                <div class="palette-row__controls">
+                  <button class="color-swatch-btn" data-palette="info" aria-label="Open info color picker"><span class="color-swatch-preview" id="swatch-preview-info"></span></button>
+                  <input type="color" class="color-picker-native" id="picker-info">
+                  <input type="text" class="hex-input" id="hex-info" maxlength="9" value="#3b82f6" aria-label="Info hex color">
+                  <button class="icon-btn lock-btn" id="lock-info" data-palette="info" aria-label="Lock info palette">
+                    <svg class="icon-unlock" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+                    <svg class="icon-lock" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  </button>
+                </div>
+              </div>
+              <div class="palette-row" data-palette="error">
+                <div class="palette-row__header">
+                  <span class="palette-row__label"><span class="status-dot status-dot--error"></span>Error</span>
+                </div>
+                <div class="palette-row__controls">
+                  <button class="color-swatch-btn" data-palette="error" aria-label="Open error color picker"><span class="color-swatch-preview" id="swatch-preview-error"></span></button>
+                  <input type="color" class="color-picker-native" id="picker-error">
+                  <input type="text" class="hex-input" id="hex-error" maxlength="9" value="#ef4444" aria-label="Error hex color">
+                  <button class="icon-btn lock-btn" id="lock-error" data-palette="error" aria-label="Lock error palette">
+                    <svg class="icon-unlock" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+                    <svg class="icon-lock" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div><!-- end .palette-section (status) -->
+
+        </div><!-- end #tab-brand -->
+
+        <!-- Fonts tab — populated by initFontsTab() -->
+        <div class="tab-panel" id="tab-fonts" role="tabpanel" style="display:none"></div>
+      </div>
+
+      <!-- Colors footer (shown for Colors tab) -->
+      <div class="sidebar-footer" id="sidebar-footer-colors">
+        <button class="random-btn" id="random-btn" aria-label="Generate random colors — or press Spacebar">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg>
+          Random colors <kbd>Space</kbd>
+        </button>
+        <div class="footer-settings">
+          <!-- Algorithm picker -->
+          <div class="setting-row">
+            <span class="setting-label">Algorithm</span>
+            <div class="fp-picker scale-picker scale-picker--footer" id="gen-picker">
+              <button class="fp-trigger scale-trigger scale-trigger--footer" id="gen-trigger" aria-haspopup="listbox" aria-expanded="false" aria-label="Color generation algorithm">
+                <span class="fp-trigger-name" id="gen-trigger-name">OKLCH</span>
+                <svg class="fp-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+              <div class="fp-dropdown scale-dropdown scale-dropdown--footer" id="gen-menu" role="listbox" aria-label="Color generation algorithm">
+                <!-- populated by initGenPicker() -->
+              </div>
+            </div>
+          </div>
+          <!-- Harmony picker -->
+          <div class="setting-row">
+            <span class="setting-label">Harmony</span>
+            <div class="fp-picker scale-picker scale-picker--footer" id="harmony-picker-wrap">
+              <button class="fp-trigger scale-trigger scale-trigger--footer" id="harmony-trigger" aria-haspopup="listbox" aria-expanded="false" aria-label="Color harmony">
+                <span class="fp-trigger-name" id="harmony-current-label">Auto</span>
+                <svg class="fp-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+              <div class="fp-dropdown scale-dropdown scale-dropdown--footer" id="harmony-picker" role="listbox" aria-label="Color harmony">
+                <!-- populated by initHarmonyPicker() -->
+              </div>
+            </div>
+          </div>
+          <!-- Precise mode -->
+          <div class="setting-row">
+            <label class="setting-label" for="precise-toggle" style="cursor:pointer" title="When on, your input color always appears verbatim as one of the scale steps">Precise</label>
+            <label class="pill-toggle" title="When on, your input color always appears verbatim as one of the scale steps">
+              <input type="checkbox" id="precise-toggle" role="switch" aria-label="Precise mode — input color always appears in scale">
+              <span class="pill-track"><span class="pill-thumb"></span></span>
+            </label>
+          </div>
+          <!-- Steps -->
+          <div class="setting-row">
+            <span class="setting-label">Steps</span>
+            <div class="steps-control" role="group" aria-label="Steps per scale">
+              <button class="step-btn" data-steps="5">5</button>
+              <button class="step-btn" data-steps="9">9</button>
+              <button class="step-btn" data-steps="10">10</button>
+              <button class="step-btn step-btn--active" data-steps="11">11</button>
+              <button class="step-btn" data-steps="12">12</button>
+            </div>
+          </div>
+          <!-- Format -->
+          <div class="setting-row">
+            <span class="setting-label">Format</span>
+            <div class="format-control" role="group" aria-label="Color value format">
+              <button class="format-btn format-btn--active" data-format="hex">HEX</button>
+              <button class="format-btn" data-format="rgb">RGB</button>
+              <button class="format-btn" data-format="hsl">HSL</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fonts footer (shown when Fonts tab is active) -->
+      <div class="sidebar-footer sidebar-footer--fonts" id="sidebar-footer-fonts" style="display:none">
+        <button class="random-btn" id="random-fonts-btn" aria-label="Generate random fonts — or press Spacebar">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg>
+          Random fonts <kbd>Space</kbd>
+        </button>
+        <div class="footer-settings" id="fonts-footer-settings">
+          <!-- Scale, Base, Steps injected by fonts-tab.js -->
+        </div>
+        <!-- Save font pair action -->
+        <div class="sidebar-actions">
+          <div class="save-picker save-picker--sidebar" id="save-fonts-picker">
+            <button id="save-fonts-btn" class="btn btn--ghost btn--sm" aria-haspopup="true" aria-expanded="false" title="Save current font pair">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+              Save pair
+            </button>
+            <div class="save-popover" id="save-fonts-popover" role="dialog" aria-label="Save font pair">
+              <p class="save-popover-label">Save font pair as</p>
+              <input class="save-popover-input" id="save-fonts-input" type="text" maxlength="60" placeholder="Font Pair 1" autocomplete="off">
+              <div class="save-popover-actions">
+                <button class="btn btn--primary btn--sm" id="save-fonts-confirm">Save</button>
+                <button class="save-popover-cancel" id="save-fonts-cancel">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Always-visible action bar: Save + Export -->
+      <div class="sidebar-actions" id="sidebar-actions">
+        <div class="save-picker save-picker--sidebar" id="save-picker">
+          <button id="topbar-save-btn" class="btn btn--ghost btn--sm" aria-haspopup="true" aria-expanded="false" title="Save current palette">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+            Save
+          </button>
+          <div class="save-popover" id="save-popover" role="dialog" aria-label="Save palette">
+            <p class="save-popover-label">Save palette as</p>
+            <input class="save-popover-input" id="save-popover-input" type="text" maxlength="60" placeholder="Palette name" autocomplete="off">
+            <div class="save-popover-actions">
+              <button class="btn btn--primary btn--sm" id="save-popover-confirm">Save</button>
+              <button class="save-popover-cancel" id="save-popover-cancel">Cancel</button>
+            </div>
+          </div>
+        </div>
+        <button id="export-btn" class="btn btn--ghost btn--sm">Export</button>
+      </div>
+    </aside>
+
+    <main class="canvas" role="main">
+      <div class="strip-header">
+        <div class="strip-palette-selector" role="group" aria-label="Select focused palette">
+          <button class="strip-palette-btn strip-palette-btn--active" data-palette="brand">Brand</button>
+          <button class="strip-palette-btn" id="strip-btn-brand2" data-palette="brand2" style="display:none">Secondary</button>
+          <button class="strip-palette-btn" id="strip-btn-brand3" data-palette="brand3" style="display:none">Tertiary</button>
+          <button class="strip-palette-btn" data-palette="neutral">Neutral</button>
+          <button class="strip-palette-btn" data-palette="success">Success</button>
+          <button class="strip-palette-btn" data-palette="warning">Warning</button>
+          <button class="strip-palette-btn" data-palette="info">Info</button>
+          <button class="strip-palette-btn" data-palette="error">Error</button>
+        </div>
+        <div class="swatch-strip" id="swatch-strip" role="list" aria-label="Color scale swatches"></div>
+      </div>
+
+      <div class="preview-section">
+        <div class="preview-tabs" role="tablist" aria-label="UI preview type">
+          <button class="preview-tab preview-tab--active" role="tab" aria-selected="true" data-preview="ui">UI</button>
+          <button class="preview-tab" role="tab" aria-selected="false" data-preview="forms">Forms</button>
+          <button class="preview-tab" role="tab" aria-selected="false" data-preview="components">Components</button>
+          <button class="preview-tab" role="tab" aria-selected="false" data-preview="typography">Typography</button>
+        </div>
+        <div class="preview-canvas" id="preview-canvas"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- My Library view -->
+  <div class="mp-shell" id="my-palettes-shell" style="display:none" role="main" aria-label="My Library">
+
+    <!-- Header: title + import/export -->
+    <div class="mp-header">
+      <h2 class="mp-title">My Library</h2>
+      <div class="mp-io-actions">
+        <button class="mp-io-btn" id="mp-import-btn" title="Import library from file">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Import
+        </button>
+        <input type="file" accept=".json" id="mp-import-input" style="display:none" aria-label="Import library file">
+        <button class="mp-io-btn" id="mp-export-btn" title="Export library to file">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Export
+        </button>
+      </div>
+    </div>
+
+    <!-- Color Palettes section -->
+    <section class="mp-section">
+      <div class="mp-section-hd">
+        <div class="mp-section-hd-left">
+          <span class="mp-section-label">Color Palettes</span>
+          <span class="mp-count" id="mp-count">No palettes saved</span>
+        </div>
+        <button class="btn btn--ghost btn--sm" id="mp-save-btn">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+          Save current
+        </button>
+      </div>
+      <div class="mp-grid" id="mp-grid" style="display:none"></div>
+      <div class="mp-empty mp-empty--sm" id="mp-empty">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.477-1.125-.29-.289-.46-.676-.46-1.087 0-.91.75-1.648 1.648-1.648h1.741c3.058 0 5.54-2.483 5.54-5.54 0-4.974-4.5-9.012-10-9.012Z"/></svg>
+        <p class="mp-empty-title">No color palettes saved</p>
+        <p class="mp-empty-sub">Generate a palette you like, then click <strong>Save current</strong>.</p>
+      </div>
+    </section>
+
+    <!-- Font Pairs section -->
+    <section class="mp-section">
+      <div class="mp-section-hd">
+        <div class="mp-section-hd-left">
+          <span class="mp-section-label">Font Pairs</span>
+          <span class="mp-count" id="mf-count">No pairs saved</span>
+        </div>
+        <button class="btn btn--ghost btn--sm" id="mf-save-btn">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+          Save current
+        </button>
+      </div>
+      <div class="mf-grid" id="mf-grid" style="display:none"></div>
+      <div class="mf-empty mp-empty mp-empty--sm" id="mf-empty">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+        <p class="mp-empty-title">No font pairs saved</p>
+        <p class="mp-empty-sub">Pick fonts you like in the sidebar, then click <strong>Save pair</strong>.</p>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="toast-container" id="toast-container" aria-live="polite" aria-atomic="false" role="status"></div>
+
+  <div class="modal-overlay" id="export-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" style="display:none">
+    <div class="modal" role="document">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-title">Export Palette</h2>
+        <button class="icon-btn modal-close" id="modal-close" aria-label="Close export modal">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-tabs" role="tablist">
+        <button class="modal-tab modal-tab--active" role="tab" data-export-tab="css">CSS Variables</button>
+        <button class="modal-tab" role="tab" data-export-tab="tailwind">Tailwind</button>
+        <button class="modal-tab" role="tab" data-export-tab="json">JSON</button>
+        <button class="modal-tab" role="tab" data-export-tab="scss">SCSS</button>
+      </div>
+      <div class="modal-body">
+        <div class="code-block-wrapper">
+          <button class="copy-code-btn" id="copy-export-btn" aria-label="Copy code">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+            Copy
+          </button>
+          <textarea class="code-output" id="export-output" readonly spellcheck="false"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tooltip" id="tooltip" role="tooltip" style="display:none"></div>
+
+  <script type="module" src="js/main.js?v=11"></script>
+</body>
+</html>
