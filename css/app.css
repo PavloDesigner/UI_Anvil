@@ -2610,8 +2610,6 @@ body {
 
   /* ── TOPBAR ─────────────────────────────────────────────────── */
   .topbar-right { gap: 4px; }
-  /* Algorithm picker not needed in topbar on mobile */
-  #gen-picker { display: none; }
 
   /* ── SHEET: palette sections ────────────────────────────────── */
   .tab-content { padding: 0; }
