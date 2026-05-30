@@ -299,7 +299,29 @@ function doRandom() {
   }
 
   const offsets = harmonyOffsets(harmony);
-  const baseH   = Math.random() * 360;
+
+  // Determine baseH:
+  // If a harmony is active and any non-status palette is locked,
+  // back-calculate baseH from its hue so all unlocked colors stay in harmony.
+  // e.g. if brand2 (offset index 1, +30°) is locked at hue 200°,
+  //      baseH = 200 - 30 = 170°, and brand will be generated at 170°.
+  const HARMONY_NAMES = ['brand', 'brand2', 'brand3', 'neutral'];
+  let baseH;
+  if (harmony !== 'auto') {
+    let anchorHue = null, anchorOffset = 0;
+    for (let i = 0; i < HARMONY_NAMES.length; i++) {
+      const p = palettes[HARMONY_NAMES[i]];
+      if (p?.locked) {
+        const rgb = hexToRgb(p.input);
+        if (rgb) { anchorHue = rgbToHsl(rgb).h; anchorOffset = offsets[i] ?? 0; break; }
+      }
+    }
+    baseH = anchorHue !== null
+      ? ((anchorHue - anchorOffset) + 720) % 360   // derived from locked hue
+      : Math.random() * 360;                         // fully random
+  } else {
+    baseH = Math.random() * 360; // unused in auto mode
+  }
 
   // brand=0, brand2=1, brand3=2, neutral=3, then status palettes
   const names = ['brand','brand2','brand3','neutral','success','warning','info','error'];
