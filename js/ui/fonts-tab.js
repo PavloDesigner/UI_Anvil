@@ -290,6 +290,10 @@ function _wireFontPicker(role, setter) {
   let activeCat    = 'all';
   let query        = '';
   let cyrillicOnly = false;
+  let _visible     = 120;        // how many items are currently rendered
+  const BATCH_SIZE = 80;         // how many more to render on scroll
+  let _currentSelected = '';
+  let _ioSentinel = null;
 
   function filtered() {
     return GOOGLE_FONTS.filter(f => {
@@ -300,42 +304,70 @@ function _wireFontPicker(role, setter) {
     });
   }
 
-  function renderList(selected) {
+  function _makeItem(font, selected) {
+    const isActive = font.family === selected;
+    const btn = document.createElement('button');
+    btn.className = 'fp-item' + (isActive ? ' fp-item--active' : '');
+    btn.setAttribute('role', 'option');
+    btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    btn.dataset.family = font.family;
+    btn.innerHTML =
+      `<span class="fp-item-name" style="font-family:'${font.family}',sans-serif">${font.family}</span>` +
+      `<span class="fp-item-cat">${font.cyrillic ? '<span class="fp-item-cyr">Кир</span>' : ''}${_catShort(font.category)}</span>`;
+    btn.addEventListener('click', () => {
+      loadGoogleFont(font.family, font.weights || [400, 700]);
+      setter(font.family);
+      nameEl.textContent       = font.family;
+      nameEl.style.fontFamily  = `'${font.family}',sans-serif`;
+      close();
+    });
+    return btn;
+  }
+
+  function renderList(selected, resetScroll = true) {
+    _currentSelected = selected;
+    if (resetScroll) _visible = 120;
+
+    // Disconnect any existing sentinel observer
+    if (_ioSentinel) { _ioSentinel.disconnect(); _ioSentinel = null; }
+
     list.innerHTML = '';
-    const fonts = filtered();
+    const fonts  = filtered();
+    const slice  = fonts.slice(0, _visible);
 
-    /* Batch-load visible fonts for name preview */
-    const batchFamilies = fonts.slice(0, 80).map(f => f.family);
-    _batchLoadForPreview(batchFamilies);
+    // Load font previews for the visible slice
+    _batchLoadForPreview(slice.map(f => f.family));
 
-    fonts.forEach(font => {
-      const isActive = font.family === selected;
-      const btn = document.createElement('button');
-      btn.className = 'fp-item' + (isActive ? ' fp-item--active' : '');
-      btn.setAttribute('role', 'option');
-      btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
-      btn.dataset.family = font.family;
+    const frag = document.createDocumentFragment();
+    slice.forEach(font => frag.appendChild(_makeItem(font, selected)));
 
-      btn.innerHTML = `
-        <span class="fp-item-name" style="font-family:'${font.family}',sans-serif">${font.family}</span>
-        <span class="fp-item-cat">${font.cyrillic ? '<span class="fp-item-cyr">Кир</span>' : ''}${_catShort(font.category)}</span>`;
+    // Sentinel for infinite scroll when there are more fonts
+    if (fonts.length > _visible) {
+      const sentinel = document.createElement('div');
+      sentinel.className  = 'fp-list-more';
+      sentinel.textContent = `Showing ${_visible} of ${fonts.length} — scroll for more`;
+      frag.appendChild(sentinel);
 
-      btn.addEventListener('click', () => {
-        const data = GOOGLE_FONTS.find(f => f.family === font.family);
-        loadGoogleFont(font.family, data?.weights || [400, 700]);
-        setter(font.family);
-        nameEl.textContent  = font.family;
-        nameEl.style.fontFamily = `'${font.family}',sans-serif`;
-        close();
+      _ioSentinel = new IntersectionObserver(entries => {
+        if (!entries[0].isIntersecting) return;
+        _ioSentinel.disconnect();
+        _ioSentinel = null;
+        _visible += BATCH_SIZE;
+        renderList(_currentSelected, false);
+      }, { root: list, rootMargin: '0px 0px 120px 0px' });
+
+      // Observe after mount
+      requestAnimationFrame(() => _ioSentinel?.observe(sentinel));
+    }
+
+    list.appendChild(frag);
+
+    /* Scroll active item into view on first open */
+    if (resetScroll) {
+      requestAnimationFrame(() => {
+        list.querySelector('.fp-item--active')?.scrollIntoView({ block: 'nearest' });
       });
-      list.appendChild(btn);
-    });
-
-    /* Scroll active item into view */
-    requestAnimationFrame(() => {
-      const active = list.querySelector('.fp-item--active');
-      if (active) active.scrollIntoView({ block: 'nearest' });
-    });
+    }
   }
 
   function _positionDropdown() {
