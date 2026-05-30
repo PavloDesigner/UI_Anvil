@@ -14,6 +14,7 @@ import { initMyPalettes, renderMyPalettes, getPreviewData } from './ui/my-palett
 import { initMyFonts, renderMyFonts } from './ui/my-fonts.js';
 import { initColorInspector } from './ui/color-inspector.js';
 import { initColorWheel }     from './ui/color-wheel.js';
+import { initContrastGrid }   from './ui/contrast-grid.js';
 import { getTypography }      from './typography-state.js';
 import { initTypography }     from './typography-state.js';
 import { initFontsTab }       from './ui/fonts-tab.js';
@@ -56,6 +57,7 @@ async function main() {
   initExportModal();
   initColorInspector();
   initColorWheel();
+  initContrastGrid();
   initFontsTab();
   initNavLinks();
   initTopbarSave();

@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="css/reset.css">
   <link rel="stylesheet" href="css/tokens.css?v=2">
   <link rel="stylesheet" href="css/themes.css?v=2">
-  <link rel="stylesheet" href="css/app.css?v=12">
+  <link rel="stylesheet" href="css/app.css?v=13">
   <link rel="stylesheet" href="css/previews.css?v=6">
 </head>
 <body>
@@ -39,6 +39,9 @@
       </nav>
     </div>
     <div class="topbar-right">
+      <button id="contrast-btn" class="icon-btn" aria-label="Contrast grid" title="Accessibility contrast grid">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      </button>
       <button id="theme-toggle" class="icon-btn" aria-label="Toggle light/dark theme" title="Toggle theme">
         <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
         <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
@@ -497,6 +500,47 @@
 
   <div class="toast-container" id="toast-container" aria-live="polite" aria-atomic="false" role="status"></div>
 
+  <!-- ─── Contrast Grid ─── -->
+  <div class="modal-overlay cg-overlay" id="cg-overlay" role="dialog" aria-modal="true" aria-label="Contrast grid" style="display:none">
+    <div class="cg-modal">
+      <!-- Header -->
+      <div class="cg-header">
+        <div class="cg-header-left">
+          <h2 class="cg-title">Contrast Grid</h2>
+          <!-- Palette tabs -->
+          <div class="cg-palette-tabs" id="cg-palette-tabs"></div>
+        </div>
+        <button class="icon-btn cg-close" id="cg-close" aria-label="Close contrast grid">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+
+      <!-- Body: sidebar + grid -->
+      <div class="cg-body">
+
+        <!-- Left sidebar: mode + thresholds -->
+        <div class="cg-sidebar">
+          <div class="cg-section-label">Guideline</div>
+          <div class="cg-mode-row">
+            <button class="cg-mode-btn cg-mode-btn--active" data-mode="wcag2">WCAG 2</button>
+            <button class="cg-mode-btn" data-mode="apca">WCAG 3 · APCA</button>
+          </div>
+
+          <div class="cg-section-label" id="cg-threshold-label">Contrast ratio</div>
+          <div class="cg-thr-list" id="cg-thresholds"></div>
+
+          <div class="cg-thr-desc" id="cg-threshold-desc"></div>
+        </div>
+
+        <!-- Right: the actual grid -->
+        <div class="cg-content">
+          <div class="cg-grid-wrap" id="cg-grid-wrap"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <div class="modal-overlay" id="export-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" style="display:none">
     <div class="modal" role="document">
       <div class="modal-header">
@@ -525,6 +569,6 @@
 
   <div class="tooltip" id="tooltip" role="tooltip" style="display:none"></div>
 
-  <script type="module" src="js/main.js?v=15"></script>
+  <script type="module" src="js/main.js?v=16"></script>
 </body>
 </html>
