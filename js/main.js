@@ -113,13 +113,21 @@ function initMobileNav() {
   /* ── Backdrop tap closes sheet ─────────────────────────────── */
   backdrop?.addEventListener('click', closeSheet);
 
+  /* ── Mobile random bar — fires both colors + fonts random ─── */
+  document.getElementById('mobile-random-action')?.addEventListener('click', () => {
+    document.getElementById('random-btn')?.click();
+    document.getElementById('random-fonts-btn')?.click();
+  });
+
   /* ── Bottom nav buttons ────────────────────────────────────── */
   document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const tab = btn.dataset.mobileTab;
 
       if (tab === 'random') {
+        // Generate both colors and fonts
         document.getElementById('random-btn')?.click();
+        document.getElementById('random-fonts-btn')?.click();
         return;
       }
       if (tab === 'export') {
