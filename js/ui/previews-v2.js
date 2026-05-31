@@ -8,6 +8,7 @@ import { buildScaleData, buildTypographyCSS, SCALE_METHODS } from '../generators
 const PREVIEWS = { ui: marketing, forms, components, typography: typographyPreview };
 let currentTab = 'ui';
 let canvasEl;
+let _lastSig = null;   // structural signature of the currently-mounted DOM
 
 export function initPreviews() {
   canvasEl = document.getElementById('preview-canvas');
@@ -25,15 +26,43 @@ export function initPreviews() {
     });
   });
 
+  /*
+   * Colors and theme flow through CSS custom properties (--accent,
+   * --color-brand-500, --surface-card, --mkt-dark-bg, …) set on :root by
+   * applyCSS(). The preview DOM references those vars, so a pure color or
+   * theme change updates the rendered output automatically — no rebuild
+   * needed. We only rebuild the DOM when *structural* state changes:
+   *   - active tab
+   *   - secondary / tertiary brand visibility (adds/removes elements)
+   *   - typography, but only on the Typography tab (it prints JS-computed
+   *     px values & font names; other tabs use --font-* / --type-* vars)
+   * This eliminates the full-DOM rebuild (and flicker) that previously
+   * ran on every palette-change — including dozens per second while
+   * dragging the color wheel.
+   */
   subscribe('palette-change', render);
-  subscribe('theme-change', render);
-  subscribe('init', render);
+  subscribe('theme-change',   render);
+  subscribe('init',           () => render(true));
   subscribeTypography(() => render());
-  render();
+  render(true);
 }
 
-function render() {
+/* A signature capturing everything that requires a DOM rebuild */
+function _signature() {
+  const s = getState();
+  let sig = `${currentTab}|${s.showSecondaryBrand ? 1 : 0}|${s.showTertiaryBrand ? 1 : 0}`;
+  if (currentTab === 'typography') {
+    const t = getTypography();
+    sig += `|${t.heading}|${t.body}|${t.scaleMethod}|${t.baseSize}|${t.steps}|${t.baseStep}`;
+  }
+  return sig;
+}
+
+function render(force = false) {
   if (!canvasEl) return;
+  const sig = _signature();
+  if (!force && sig === _lastSig) return;  // structural state unchanged → CSS vars handle the rest
+  _lastSig = sig;
   canvasEl.innerHTML = '';
   const state = getState();
   const fn = PREVIEWS[currentTab];
