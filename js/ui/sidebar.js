@@ -375,6 +375,7 @@ function doRandom() {
   const state = getState();
   const { harmony } = state;
   const palettes = state.palettes;
+  const offs = harmonyOffsets(harmony);
 
   // Determine baseH anchored to any locked palette (or random if none locked)
   let baseH;
