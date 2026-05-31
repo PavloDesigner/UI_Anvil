@@ -279,6 +279,32 @@ function initBottomControls() {
 /* Canonical hues for status palettes — vary sat/lightness only */
 const CANONICAL_HUES = { success: 140, warning: 38, info: 215, error: 8 };
 
+/* ─── Undo stack (up to 20 snapshots of palette inputs) ─── */
+const _undoStack = [];
+const UNDO_LIMIT = 20;
+
+function _pushUndo() {
+  const snap = {};
+  const { palettes } = getState();
+  for (const [name, p] of Object.entries(palettes)) snap[name] = p.input;
+  _undoStack.push(snap);
+  if (_undoStack.length > UNDO_LIMIT) _undoStack.shift();
+}
+
+export function undoRandom() {
+  if (!_undoStack.length) return false;
+  const snap = _undoStack.pop();
+  for (const [name, hex] of Object.entries(snap)) {
+    setPaletteInput(name, hex);
+    const hexIn  = document.getElementById(`hex-${name}`);
+    const picker = document.getElementById(`picker-${name}`);
+    if (hexIn)  hexIn.value  = hex;
+    if (picker) picker.value = hex;
+    updateSwatchPreview(name, hex);
+  }
+  return true;
+}
+
 /* Harmony-to-hue-offset table (brand=0, brand2=1, brand3=2, neutral=3) */
 const HARMONY_NAMES   = ['brand', 'brand2', 'brand3', 'neutral'];
 function harmonyOffsets(h) {
@@ -345,6 +371,7 @@ function _applyHarmony(harmonyValue) {
 }
 
 function doRandom() {
+  _pushUndo();
   const state = getState();
   const { harmony } = state;
   const palettes = state.palettes;
@@ -615,24 +642,6 @@ function initHarmonyPicker() {
   }
   syncHarmony();
   subscribe('init', syncHarmony);
-}
-
-/* Tint neutral toward brand hue when a named harmony is active */
-function _applyHarmonyToNeutral(harmonyValue) {
-  if (harmonyValue === 'auto') return; // leave neutral free in auto mode
-  const { palettes } = getState();
-  if (palettes.neutral?.locked) return;
-  const brandHex = palettes.brand?.input;
-  if (!brandHex) return;
-  const { h } = rgbToHsl(hexToRgb(brandHex));
-  const rgb = hslToRgb({ h, s: 7, l: 47 });
-  const hex = rgbToHex({ r: Math.round(rgb.r), g: Math.round(rgb.g), b: Math.round(rgb.b) });
-  setPaletteInput('neutral', hex);
-  const hexIn  = document.getElementById('hex-neutral');
-  const picker = document.getElementById('picker-neutral');
-  if (hexIn)  hexIn.value  = hex;
-  if (picker) picker.value = hex;
-  updateSwatchPreview('neutral', hex);
 }
 
 /* Auto-suggest status colors from brand */

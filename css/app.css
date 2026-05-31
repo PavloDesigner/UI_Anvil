@@ -1489,7 +1489,15 @@ body {
   background: oklch(13% 0.008 265);
   border-bottom: 1px solid oklch(22% 0.01 265);
   flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
 }
+/* Row containing the swatch strip + copy button */
+.strip-swatches-row {
+  display: flex;
+  align-items: center;
+}
+.strip-swatches-row .swatch-strip { flex: 1; min-width: 0; }
 .strip-palette-selector {
   display: flex;
   padding: 10px 16px 0;
@@ -3070,4 +3078,83 @@ body {
   }
   .cg-palette-tabs::-webkit-scrollbar { display: none; }
   .cg-pal-btn { font-size: 11px; padding: 3px 8px; white-space: nowrap; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SHORTCUTS PANEL
+   ═══════════════════════════════════════════════════════════════ */
+.shortcuts-modal {
+  background: oklch(13% 0.01 265);
+  border: 1px solid oklch(22% 0.01 265);
+  border-radius: 14px;
+  width: min(400px, 94vw);
+  box-shadow: 0 24px 80px oklch(0% 0 0 / 0.6);
+  overflow: hidden;
+}
+.shortcuts-body {
+  padding: 4px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.shortcut-group { display: flex; flex-direction: column; gap: 6px; }
+.shortcut-group-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: oklch(40% 0.007 265);
+  margin-bottom: 2px;
+}
+.shortcut-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  color: oklch(72% 0.007 265);
+}
+.shortcut-row kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  color: oklch(78% 0.006 265);
+  background: oklch(20% 0.01 265);
+  border: 1px solid oklch(30% 0.01 265);
+  border-radius: 5px;
+  padding: 3px 7px;
+  min-width: 26px;
+  box-shadow: 0 1px 0 oklch(8% 0 0);
+}
+.shortcut-row:first-child kbd { display: flex; gap: 4px; }
+.shortcut-row > span:last-child { color: oklch(52% 0.007 265); }
+.shortcut-row > span:first-child { display: flex; align-items: center; gap: 4px; }
+
+/* ═══════════════════════════════════════════════════════════════
+   COPY PALETTE BUTTON (strip header)
+   ═══════════════════════════════════════════════════════════════ */
+.copy-palette-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  color: oklch(42% 0.007 265);
+  flex-shrink: 0;
+  margin: 0 8px 0 4px;
+  transition: color 130ms ease, background 130ms ease;
+  outline: none;
+}
+.copy-palette-btn:hover { color: var(--chrome-text); background: oklch(20% 0.012 265); }
+.copy-palette-btn:active { transform: scale(0.88); transition-duration: 80ms; }
+.copy-palette-btn:focus-visible { box-shadow: 0 0 0 2px oklch(18% 0.01 265), 0 0 0 4px var(--accent); }
+
+@media (max-width: 768px) {
+  .shortcuts-modal { border-radius: 20px 20px 0 0; width: 100%; }
+  .shortcuts-panel { align-items: flex-end; padding: 0; }
+  .copy-palette-btn { width: 26px; height: 26px; margin: 0 4px 0 2px; }
 }

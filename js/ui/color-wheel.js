@@ -38,8 +38,10 @@ export function initColorWheel() {
   };
 
   subscribe('palette-change',         _redraw);
-  subscribe('secondary-brand-change', _redraw);
-  subscribe('tertiary-brand-change',  _redraw);
+  // Delay by one rAF so the palette-change triggered by setShowSecondaryBrand
+  // has already fired and the scale is ready before we redraw
+  subscribe('secondary-brand-change', () => requestAnimationFrame(_redraw));
+  subscribe('tertiary-brand-change',  () => requestAnimationFrame(_redraw));
   subscribe('init',                   _redraw);
   _redraw();
 

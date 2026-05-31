@@ -434,12 +434,14 @@ export function initState(hashOverride = null) {
     const { decodeState } = await_import_hack();
     const decoded = decodeState(hash.slice(1));
     if (decoded) {
-      _state.method             = decoded.method             || _state.method;
-      _state.steps              = decoded.steps              || _state.steps;
-      _state.theme              = decoded.theme              || _state.theme;
-      _state.format             = decoded.format             || _state.format;
-      _state.harmony            = decoded.harmony            || _state.harmony;
-      _state.showTertiaryBrand  = decoded.showTertiaryBrand  || false;
+      _state.method              = decoded.method              || _state.method;
+      _state.steps               = decoded.steps               || _state.steps;
+      _state.theme               = decoded.theme               || _state.theme;
+      _state.format              = decoded.format              || _state.format;
+      _state.harmony             = decoded.harmony             || _state.harmony;
+      _state.showSecondaryBrand  = decoded.showSecondaryBrand  ?? false;
+      _state.showTertiaryBrand   = decoded.showTertiaryBrand   ?? false;
+      _state.precise             = decoded.precise             ?? false;
       for (const [k, v] of Object.entries(decoded.palettes || {})) {
         if (_state.palettes[k]) {
           _state.palettes[k].input  = v.input  || _state.palettes[k].input;
@@ -461,11 +463,14 @@ function await_import_hack() {
       try {
         const payload = JSON.parse(atob(raw.padEnd(Math.ceil(raw.length / 4) * 4, '=')));
         return {
-          method: payload.m,
-          steps: payload.s,
-          theme: payload.t,
-          format: payload.f,
-          harmony: payload.h,
+          method:             payload.m,
+          steps:              payload.s,
+          theme:              payload.t,
+          format:             payload.f,
+          harmony:            payload.h,
+          showSecondaryBrand: !!payload.sb,
+          showTertiaryBrand:  !!payload.tb,
+          precise:            !!payload.pr,
           palettes: Object.fromEntries(
             Object.entries(payload.p || {}).map(([k, v]) => [k, { input: v.i, locked: !!v.l }])
           ),

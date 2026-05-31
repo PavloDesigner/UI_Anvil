@@ -11,6 +11,7 @@ import { initPreviews }  from './ui/previews-v2.js';
 import { initThemeToggle } from './ui/theme-toggle.js';
 import { initSidebar, syncFromState } from './ui/sidebar.js';
 import { initMyPalettes, renderMyPalettes, getPreviewData } from './ui/my-palettes.js';
+import { undoRandom } from './ui/sidebar.js';
 import { initMyFonts, renderMyFonts } from './ui/my-fonts.js';
 import { initColorInspector } from './ui/color-inspector.js';
 import { initColorWheel }     from './ui/color-wheel.js';
@@ -71,6 +72,10 @@ async function main() {
     onNavigateToGenerate: () => showView('generate'),
   });
   initMobileNav();
+  initShareBtn();
+  initCopyPalette();
+  initShortcutsPanel();
+  initGlobalKeyboard();
 }
 
 function initNavLinks() {
@@ -478,6 +483,73 @@ function initImportExport() {
 
     /* Reset so the same file can be picked again */
     importInput.value = '';
+  });
+}
+
+/* ─── Share link ─── */
+function initShareBtn() {
+  document.getElementById('share-btn')?.addEventListener('click', async () => {
+    // Force-flush any pending hash save before copying
+    history.replaceState(null, '', '#' + (await import('./utils.js').then(m => m.encodeState(getState()))));
+    await copyToClipboard(location.href);
+    showToast('Link copied to clipboard');
+  });
+}
+
+/* ─── Copy current palette ─── */
+function initCopyPalette() {
+  document.getElementById('copy-palette-btn')?.addEventListener('click', async () => {
+    const state  = getState();
+    const { focusedPalette, palettes, steps, format, theme } = state;
+    const palette = palettes[focusedPalette];
+    if (!palette) return;
+    const { formatColor } = await import('./color.js');
+    const { getStepLabels } = await import('./state.js');
+    const scale  = palette.scale[theme] || palette.scale.light || [];
+    const labels = getStepLabels(steps);
+    const lines  = scale.map((hex, i) => `${focusedPalette}-${labels[i]}: ${formatColor(hex, format)}`);
+    await copyToClipboard(lines.join('\n'));
+    showToast(`Copied ${focusedPalette} palette`);
+  });
+}
+
+/* ─── Keyboard shortcuts panel ─── */
+function initShortcutsPanel() {
+  const btn     = document.getElementById('shortcuts-btn');
+  const panel   = document.getElementById('shortcuts-panel');
+  const closeEl = document.getElementById('shortcuts-close');
+  if (!btn || !panel) return;
+
+  function openPanel() {
+    panel.style.display = 'flex';
+    closeEl?.focus();
+  }
+  function closePanel() {
+    panel.style.display = 'none';
+    btn.focus();
+  }
+
+  btn.addEventListener('click', openPanel);
+  closeEl?.addEventListener('click', closePanel);
+  panel.addEventListener('click', e => { if (e.target === panel) closePanel(); });
+  document.addEventListener('keydown', e => {
+    if (e.key === '?' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+      openPanel();
+    }
+    if (e.key === 'Escape' && panel.style.display !== 'none') closePanel();
+  });
+}
+
+/* ─── Global keyboard shortcuts ─── */
+function initGlobalKeyboard() {
+  document.addEventListener('keydown', e => {
+    // Ctrl/Cmd+Z — undo last random
+    if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+      const tag = document.activeElement.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return; // don't steal from text fields
+      e.preventDefault();
+      if (undoRandom()) showToast('Undo');
+    }
   });
 }
 

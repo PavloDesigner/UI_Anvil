@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="css/reset.css">
   <link rel="stylesheet" href="css/tokens.css?v=2">
   <link rel="stylesheet" href="css/themes.css?v=2">
-  <link rel="stylesheet" href="css/app.css?v=16">
+  <link rel="stylesheet" href="css/app.css?v=17">
   <link rel="stylesheet" href="css/previews.css?v=6">
 </head>
 <body>
@@ -39,6 +39,12 @@
       </nav>
     </div>
     <div class="topbar-right">
+      <button id="share-btn" class="icon-btn" aria-label="Copy share link" title="Copy share link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      </button>
+      <button id="shortcuts-btn" class="icon-btn" aria-label="Keyboard shortcuts" title="Keyboard shortcuts (?)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8"/></svg>
+      </button>
       <button id="contrast-btn" class="icon-btn" aria-label="Contrast grid" title="Accessibility contrast grid">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
       </button>
@@ -395,7 +401,12 @@
           <button class="strip-palette-btn" data-palette="info">Info</button>
           <button class="strip-palette-btn" data-palette="error">Error</button>
         </div>
-        <div class="swatch-strip" id="swatch-strip" role="list" aria-label="Color scale swatches"></div>
+        <div class="strip-swatches-row">
+          <div class="swatch-strip" id="swatch-strip" role="list" aria-label="Color scale swatches"></div>
+          <button id="copy-palette-btn" class="copy-palette-btn" aria-label="Copy all values for this palette" title="Copy palette">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+          </button>
+        </div>
       </div>
 
       <div class="preview-section">
@@ -500,6 +511,35 @@
 
   <div class="toast-container" id="toast-container" aria-live="polite" aria-atomic="false" role="status"></div>
 
+  <!-- ─── Keyboard Shortcuts Panel ─── -->
+  <div class="modal-overlay shortcuts-panel" id="shortcuts-panel" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts" style="display:none">
+    <div class="shortcuts-modal">
+      <div class="modal-header">
+        <h2 class="modal-title">Keyboard shortcuts</h2>
+        <button class="icon-btn modal-close" id="shortcuts-close" aria-label="Close">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+      <div class="shortcuts-body">
+        <div class="shortcut-group">
+          <div class="shortcut-group-label">Generation</div>
+          <div class="shortcut-row"><kbd>Space</kbd><span>Random colors &amp; fonts</span></div>
+          <div class="shortcut-row"><kbd>Ctrl</kbd><kbd>Z</kbd><span>Undo last random</span></div>
+        </div>
+        <div class="shortcut-group">
+          <div class="shortcut-group-label">Navigation</div>
+          <div class="shortcut-row"><kbd>?</kbd><span>Show this panel</span></div>
+          <div class="shortcut-row"><kbd>Esc</kbd><span>Close any open panel</span></div>
+        </div>
+        <div class="shortcut-group">
+          <div class="shortcut-group-label">Palette</div>
+          <div class="shortcut-row"><span>Click swatch</span><span>Copy color value</span></div>
+          <div class="shortcut-row"><span>Drag color wheel</span><span>Rotate all hues</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ─── Contrast Grid ─── -->
   <div class="modal-overlay cg-overlay" id="cg-overlay" role="dialog" aria-modal="true" aria-label="Contrast grid" style="display:none">
     <div class="cg-modal">
@@ -578,6 +618,6 @@
 
   <div class="tooltip" id="tooltip" role="tooltip" style="display:none"></div>
 
-  <script type="module" src="js/main.js?v=22"></script>
+  <script type="module" src="js/main.js?v=23"></script>
 </body>
 </html>

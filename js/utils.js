@@ -54,11 +54,14 @@ export function el(tag, attrs = {}, ...children) {
 /* Encode state to URL hash */
 export function encodeState(state) {
   const payload = {
-    m: state.method,
-    s: state.steps,
-    t: state.theme,
-    f: state.format,
-    h: state.harmony,
+    m:  state.method,
+    s:  state.steps,
+    t:  state.theme,
+    f:  state.format,
+    h:  state.harmony,
+    sb: state.showSecondaryBrand ? 1 : 0,
+    tb: state.showTertiaryBrand  ? 1 : 0,
+    pr: state.precise            ? 1 : 0,
     p: Object.fromEntries(
       Object.entries(state.palettes).map(([k, v]) => [k, { i: v.input, l: v.locked ? 1 : 0 }])
     ),
