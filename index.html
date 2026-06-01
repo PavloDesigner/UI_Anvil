@@ -641,25 +641,47 @@
   <div class="modal-overlay" id="export-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" style="display:none">
     <div class="modal" role="document">
       <div class="modal-header">
-        <h2 class="modal-title" id="modal-title">Export Palette</h2>
+        <div class="modal-title-group">
+          <h2 class="modal-title" id="modal-title">Export Tokens</h2>
+          <span class="modal-format-badge">Figma JSON</span>
+        </div>
         <button class="icon-btn modal-close" id="modal-close" aria-label="Close export modal">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         </button>
       </div>
       <div class="modal-tabs" role="tablist">
-        <button class="modal-tab modal-tab--active" role="tab" data-export-tab="css">CSS Variables</button>
-        <button class="modal-tab" role="tab" data-export-tab="tailwind">Tailwind</button>
-        <button class="modal-tab" role="tab" data-export-tab="json">JSON</button>
-        <button class="modal-tab" role="tab" data-export-tab="scss">SCSS</button>
+        <button class="modal-tab modal-tab--active" role="tab" data-export-tab="brand">
+          <span class="modal-tab-num">01</span> Brand
+        </button>
+        <button class="modal-tab" role="tab" data-export-tab="alias">
+          <span class="modal-tab-num">02</span> Alias
+        </button>
+        <button class="modal-tab" role="tab" data-export-tab="mapped">
+          <span class="modal-tab-num">03</span> Mapped
+        </button>
       </div>
-      <div class="modal-body">
-        <div class="code-block-wrapper">
-          <button class="copy-code-btn" id="copy-export-btn" aria-label="Copy code">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+      <div class="modal-layer-meta" id="modal-layer-meta">
+        <span class="modal-layer-desc" id="modal-layer-desc">Primitive color palettes — Brand collection</span>
+        <div class="modal-layer-actions">
+          <button class="modal-action-btn" id="copy-export-btn" aria-label="Copy JSON">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
             Copy
           </button>
+          <button class="modal-action-btn modal-action-btn--primary" id="download-export-btn" aria-label="Download JSON file">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 13 7 8"/><line x1="12" y1="3" x2="12" y2="13"/></svg>
+            Download
+          </button>
+          <button class="modal-action-btn modal-action-btn--visual" id="visual-toggle-btn" aria-label="Toggle visual hierarchy">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            Visual
+          </button>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="code-block-wrapper" id="export-code-view">
           <textarea class="code-output" id="export-output" readonly spellcheck="false"></textarea>
         </div>
+        <div class="token-hierarchy" id="export-visual-view" style="display:none"></div>
       </div>
     </div>
   </div>

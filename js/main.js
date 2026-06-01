@@ -1,6 +1,7 @@
 /* Entry point — wires everything together */
 
 import { initState, getState, getStepLabels, subscribe } from './state.js';
+import { generateBrand, generateAlias, generateMapped, hexHueName } from './generators/tokens.js';
 import { formatColor } from './color.js';
 import { copyToClipboard } from './utils.js';
 import { initToast, showToast } from './ui/toast.js';
@@ -210,21 +211,34 @@ function initMobileNav() {
   }
 }
 
-/* Export modal */
+/* Export modal — Figma 3-layer token JSON */
+
+const LAYER_META = {
+  brand:  { desc: 'Primitive color palettes — Brand collection',         file: 'brand.json' },
+  alias:  { desc: 'Semantic color groups — Alias collection',            file: 'alias.json' },
+  mapped: { desc: 'Component semantic tokens — Mapped collection',       file: 'mapped.json' },
+};
+
 function initExportModal() {
-  const openBtn  = document.getElementById('export-btn');
-  const overlay  = document.getElementById('export-modal');
-  const closeBtn = document.getElementById('modal-close');
-  const output   = document.getElementById('export-output');
-  const copyBtn  = document.getElementById('copy-export-btn');
-  let currentTab = 'css';
+  const openBtn      = document.getElementById('export-btn');
+  const overlay      = document.getElementById('export-modal');
+  const closeBtn     = document.getElementById('modal-close');
+  const output       = document.getElementById('export-output');
+  const copyBtn      = document.getElementById('copy-export-btn');
+  const downloadBtn  = document.getElementById('download-export-btn');
+  const visualBtn    = document.getElementById('visual-toggle-btn');
+  const codeView     = document.getElementById('export-code-view');
+  const visualView   = document.getElementById('export-visual-view');
+  const layerDesc    = document.getElementById('modal-layer-desc');
+  let currentTab  = 'brand';
+  let visualMode  = false;
 
   if (!overlay) return;
 
   function open() {
     overlay.style.display = 'flex';
     document.body.style.overflow = 'hidden';
-    renderExport(currentTab);
+    if (visualMode) renderVisual(); else renderTokenExport(currentTab);
     closeBtn?.focus();
     overlay.addEventListener('keydown', trapFocus);
   }
@@ -236,23 +250,54 @@ function initExportModal() {
     openBtn?.focus();
   }
 
+  function setVisualMode(on) {
+    visualMode = on;
+    visualBtn?.classList.toggle('is-active', on);
+    codeView.style.display  = on ? 'none' : '';
+    visualView.style.display = on ? '' : 'none';
+    copyBtn.style.display     = on ? 'none' : '';
+    downloadBtn.style.display = on ? 'none' : '';
+    if (on) {
+      if (layerDesc) layerDesc.textContent = 'Brand → Alias → Mapped dependency chain';
+      renderVisual();
+    } else {
+      renderTokenExport(currentTab);
+    }
+  }
+
   openBtn?.addEventListener('click', open);
   closeBtn?.addEventListener('click', close);
   overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && overlay.style.display !== 'none') close(); });
 
-  document.querySelectorAll('.modal-tab').forEach(btn => {
+  overlay.querySelectorAll('.modal-tab').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.modal-tab').forEach(b => b.classList.remove('modal-tab--active'));
+      overlay.querySelectorAll('.modal-tab').forEach(b => b.classList.remove('modal-tab--active'));
       btn.classList.add('modal-tab--active');
       currentTab = btn.dataset.exportTab;
-      renderExport(currentTab);
+      if (!visualMode) renderTokenExport(currentTab);
     });
   });
+
+  visualBtn?.addEventListener('click', () => setVisualMode(!visualMode));
 
   copyBtn?.addEventListener('click', async () => {
     await copyToClipboard(output.value);
     showToast('Copied to clipboard');
+  });
+
+  downloadBtn?.addEventListener('click', () => {
+    const meta = LAYER_META[currentTab];
+    const blob = new Blob([output.value], { type: 'application/json' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url;
+    a.download = meta?.file ?? `${currentTab}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast(`Downloaded ${meta?.file ?? currentTab + '.json'}`);
   });
 
   function trapFocus(e) {
@@ -262,47 +307,216 @@ function initExportModal() {
     if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
     else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   }
+
+  function renderTokenExport(tab) {
+    if (!output) return;
+    const { palettes } = getState();
+    const meta = LAYER_META[tab];
+    if (layerDesc) layerDesc.textContent = meta?.desc ?? '';
+    let obj;
+    if (tab === 'brand')       obj = generateBrand(palettes);
+    else if (tab === 'alias')  obj = generateAlias(palettes);
+    else if (tab === 'mapped') obj = generateMapped(palettes);
+    output.value = JSON.stringify(obj, null, 2);
+  }
+
+  function renderVisual() {
+    if (!visualView) return;
+    const { palettes } = getState();
+    visualView.innerHTML = buildVisualHTML(palettes);
+  }
+
+  // Re-render whichever view is active when the palette changes
+  subscribe('palette-change', () => {
+    if (overlay.style.display === 'none') return;
+    if (visualMode) renderVisual();
+    else renderTokenExport(currentTab);
+  });
 }
 
-function renderExport(tab) {
-  const output = document.getElementById('export-output');
-  if (!output) return;
-  const state = getState();
-  const { palettes, steps, theme } = state;
-  const labels = getStepLabels(steps);
-  const paletteNames = ['brand','neutral','success','warning','info','error'];
+/* ── Visual hierarchy builder ────────────────────────────────────────────── */
 
-  if (tab === 'css') {
-    const lightVars = buildCSSVars(paletteNames, palettes, labels, 'light');
-    const darkVars  = buildCSSVars(paletteNames, palettes, labels, 'dark');
-    output.value = `:root {\n${lightVars}}\n\n[data-theme="dark"] {\n${darkVars}}`;
-  } else if (tab === 'tailwind') {
-    const lines = paletteNames.flatMap(name => {
-      const p = palettes[name];
-      const scale = p.scale.light;
-      return [`    ${name}: {`, ...scale.map((hex, i) => `      ${labels[i]}: '${hex}',`), '    },'];
-    });
-    output.value = `module.exports = {\n  theme: {\n    extend: {\n      colors: {\n${lines.join('\n')}\n      }\n    }\n  }\n}`;
-  } else if (tab === 'json') {
-    const obj = {};
-    paletteNames.forEach(name => {
-      const p = palettes[name];
-      const scale = p.scale.light;
-      obj[name] = {};
-      scale.forEach((hex, i) => { obj[name][labels[i]] = hex; });
-    });
-    output.value = JSON.stringify(obj, null, 2);
-  } else if (tab === 'scss') {
-    const lines = paletteNames.flatMap(name => {
-      const p = palettes[name];
-      const scale = p.scale.light;
-      return scale.map((hex, i) => `$color-${name}-${labels[i]}: ${hex};`);
-    });
-    output.value = lines.join('\n');
+// Scope label → CSS class suffix
+function scopeCls(scope) {
+  return { TEXT_FILL: 'text', FRAME_FILL: 'frame', SHAPE_FILL: 'shape',
+           EFFECT_COLOR: 'effect', STROKE: 'stroke', ALL_SCOPES: 'all' }[scope] ?? 'all';
+}
+
+function buildVisualHTML(palettes) {
+  // Generate all 3 layers
+  const brandData  = generateBrand(palettes);
+  const aliasData  = generateAlias(palettes);
+  const mappedData = generateMapped(palettes);
+
+  // ── Flatten alias tokens ────────────────────────────────────────────────
+  // aliasFlat: { 'Primary/100': { hex, targetBrand, scopes } }
+  const aliasFlat = {};
+  const ALIAS_GROUPS = ['Primary','Neutral','Success','Error','Info','Warning'];
+  for (const grp of ALIAS_GROUPS) {
+    const g = aliasData[grp]; if (!g) continue;
+    for (const [step, tok] of Object.entries(g)) {
+      if (tok.$type !== 'color') continue;
+      aliasFlat[`${grp}/${step}`] = {
+        hex:         tok.$value.hex,
+        targetBrand: tok.$extensions?.['com.figma.aliasData']?.targetVariableName,
+        scopes:      tok.$extensions?.['com.figma.scopes'] ?? [],
+      };
+    }
   }
+
+  // ── Flatten mapped tokens ───────────────────────────────────────────────
+  // mappedFlat: { 'Text/action': { hex, targetAlias, scope } }
+  const mappedFlat = {};
+  const MAPPED_GROUPS = ['Text','Surface','Icon','Effects','Borders & Dividers'];
+  for (const grp of MAPPED_GROUPS) {
+    const g = mappedData[grp]; if (!g) continue;
+    for (const [name, tok] of Object.entries(g)) {
+      if (tok.$type !== 'color') continue;
+      mappedFlat[`${grp}/${name}`] = {
+        hex:         tok.$value.hex,
+        targetAlias: tok.$extensions?.['com.figma.aliasData']?.targetVariableName,
+        scope:       tok.$extensions?.['com.figma.scopes']?.[0] ?? '',
+      };
+    }
+  }
+
+  // ── Build reverse lookup: aliasKey → [mapped tokens] ───────────────────
+  const aliasToMapped = {};
+  for (const [fullName, tok] of Object.entries(mappedFlat)) {
+    const key = tok.targetAlias; if (!key) continue;
+    (aliasToMapped[key] ??= []).push({ fullName, ...tok });
+  }
+
+  // ── Build reverse lookup: brandKey → [alias tokens] ────────────────────
+  const brandToAlias = {};
+  for (const [fullName, tok] of Object.entries(aliasFlat)) {
+    const key = tok.targetBrand; if (!key) continue;
+    (brandToAlias[key] ??= []).push({ fullName, ...tok });
+  }
+
+  // ── Color families to render — hue name detected from current palette ──
+  const hue = (pal) => {
+    const scale = palettes[pal]?.scale?.light ?? [];
+    return scale.length ? hexHueName(scale[Math.floor(scale.length / 2)]) : pal;
+  };
+
+  const FAMILIES = [
+    { family: hue('brand'),   aliasGroup: 'Primary', label: 'Primary', palKey: 'brand'   },
+    { family: 'Gray',         aliasGroup: 'Neutral', label: 'Neutral', palKey: 'neutral' },
+    { family: hue('success'), aliasGroup: 'Success', label: 'Success', palKey: 'success' },
+    { family: hue('error'),   aliasGroup: 'Error',   label: 'Error',   palKey: 'error'   },
+    { family: hue('info'),    aliasGroup: 'Info',     label: 'Info',   palKey: 'info'    },
+    { family: hue('warning'), aliasGroup: 'Warning', label: 'Warning', palKey: 'warning' },
+  ];
+
+  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  // Scope badge HTML
+  const scopeBadge = (scope) =>
+    scope ? `<span class="th-scope th-scope--${scopeCls(scope)}">${esc(scope)}</span>` : '';
+
+  // Token card HTML
+  const brandCard = (name, hex) => `
+    <div class="th-token th-token--brand">
+      <span class="th-swatch" style="background:${esc(hex)}"></span>
+      <div class="th-token-info">
+        <span class="th-token-name">${esc(name)}</span>
+        <span class="th-token-hex">${esc(hex)}</span>
+      </div>
+    </div>`;
+
+  const aliasCard = (name, hex, ref, scopes) => `
+    <div class="th-token th-token--alias">
+      <span class="th-swatch" style="background:${esc(hex)}"></span>
+      <div class="th-token-info">
+        <span class="th-token-name">${esc(name)}</span>
+        <span class="th-token-hex">${esc(hex)}</span>
+        <span class="th-token-ref">← ${esc(ref)}</span>
+        ${scopeBadge(scopes[0] ?? '')}
+      </div>
+    </div>`;
+
+  const mappedCard = (name, hex, ref, scope) => `
+    <div class="th-token th-token--mapped">
+      <span class="th-swatch" style="background:${esc(hex)}"></span>
+      <div class="th-token-info">
+        <span class="th-token-name">${esc(name)}</span>
+        <span class="th-token-ref">← ${esc(ref)}</span>
+        ${scopeBadge(scope)}
+      </div>
+    </div>`;
+
+  let html = `
+    <div class="th-header-row">
+      <div class="th-col-label th-col-label--brand"><span class="th-col-label-num">01</span> Brand</div>
+      <div></div>
+      <div class="th-col-label th-col-label--alias"><span class="th-col-label-num">02</span> Alias</div>
+      <div></div>
+      <div class="th-col-label th-col-label--mapped"><span class="th-col-label-num">03</span> Mapped</div>
+    </div>`;
+
+  for (const { family, aliasGroup, label } of FAMILIES) {
+    const familyColors = brandData.Colors[family];
+    if (!familyColors) continue;
+
+    // Pick the mid-scale step as the section accent color
+    const steps = Object.keys(familyColors);
+    const midHex = familyColors[steps[Math.floor(steps.length / 2)]]?.$value?.hex ?? '#888';
+
+    // Count total mapped tokens in this family
+    const mappedCount = steps.reduce((acc, step) => {
+      const brandName = `Colors/${family}/${step}`;
+      const aliases = brandToAlias[brandName] ?? [];
+      return acc + aliases.reduce((a, at) => a + (aliasToMapped[at.fullName]?.length ?? 0), 0);
+    }, 0);
+
+    html += `
+      <div class="th-section">
+        <div class="th-section-header" style="--sc:${esc(midHex)}">
+          <span class="th-section-dot"></span>
+          ${esc(label)} <span style="color:oklch(38% 0.008 265);font-weight:400">/ ${esc(family)}</span>
+          <span class="th-section-count">${mappedCount} mapped</span>
+        </div>`;
+
+    for (const [step, brandTok] of Object.entries(familyColors)) {
+      const brandName  = `Colors/${family}/${step}`;
+      const brandHex   = brandTok.$value.hex;
+      const aliasArr   = brandToAlias[brandName] ?? [];
+      // For families with 1:1 mapping we always have 0 or 1 alias
+      const aliasEntry = aliasArr[0] ?? null;
+      const mappedArr  = aliasEntry ? (aliasToMapped[aliasEntry.fullName] ?? []) : [];
+      const unused     = !aliasEntry || mappedArr.length === 0;
+
+      html += `
+        <div class="th-row${unused ? ' th-row--unused' : ''}">
+          <div class="th-cell">
+            ${brandCard(brandName, brandHex)}
+          </div>
+          <div class="th-connector${aliasEntry ? ' th-connector--active' : ''}">→</div>
+          <div class="th-cell">
+            ${aliasEntry
+              ? aliasCard(aliasEntry.fullName, aliasEntry.hex, brandName, aliasEntry.scopes)
+              : `<span class="th-empty">—</span>`}
+          </div>
+          <div class="th-connector${mappedArr.length ? ' th-connector--active' : ''}">
+            ${mappedArr.length ? '→' : ''}
+          </div>
+          <div class="th-cell">
+            ${mappedArr.length
+              ? mappedArr.map(m => mappedCard(m.fullName, m.hex, m.targetAlias, m.scope)).join('')
+              : `<span class="th-empty">Not referenced</span>`}
+          </div>
+        </div>`;
+    }
+
+    html += `</div>`; // end .th-section
+  }
+
+  return html;
 }
 
 /* ─── Topbar Save button ─── */
+
 function initTopbarSave() {
   const picker     = document.getElementById('save-picker');
   const openBtn    = document.getElementById('topbar-save-btn');
@@ -354,13 +568,6 @@ function initTopbarSave() {
   });
 }
 
-function buildCSSVars(names, palettes, labels, mode) {
-  return names.flatMap(name => {
-    const p = palettes[name];
-    const scale = p.scale[mode] || p.scale.light;
-    return scale.map((hex, i) => `  --color-${name}-${labels[i]}: ${hex};\n`);
-  }).join('');
-}
 
 /* ─── Font pair Save (sidebar footer popover) ─── */
 function initFontSave() {

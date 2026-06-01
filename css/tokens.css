@@ -1,6 +1,11 @@
-/* Runtime palette — values injected by state.js on every regeneration */
+/* ═══════════════════════════════════════════════════════════════════════════
+   LAYER 1 — BRAND
+   Primitive color palettes. Values runtime-injected by state.js.
+   Corresponds to the "Brand" variable set in Figma.
+   ═══════════════════════════════════════════════════════════════════════════ */
 :root {
-  --color-brand-50: #f0f9ff;
+  /* Primary (user brand color — Orange family in Figma Brand) */
+  --color-brand-50:  #f0f9ff;
   --color-brand-100: #e0f2fe;
   --color-brand-200: #bae6fd;
   --color-brand-300: #7dd3fc;
@@ -12,7 +17,8 @@
   --color-brand-900: #0c4a6e;
   --color-brand-950: #082f49;
 
-  --color-neutral-50: #fafafa;
+  /* Neutral (Gray family in Figma Brand) */
+  --color-neutral-50:  #fafafa;
   --color-neutral-100: #f4f4f5;
   --color-neutral-200: #e4e4e7;
   --color-neutral-300: #d4d4d8;
@@ -24,7 +30,8 @@
   --color-neutral-900: #18181b;
   --color-neutral-950: #09090b;
 
-  --color-success-50: #f0fdf4;
+  /* Success (Green family in Figma Brand) */
+  --color-success-50:  #f0fdf4;
   --color-success-100: #dcfce7;
   --color-success-200: #bbf7d0;
   --color-success-300: #86efac;
@@ -36,7 +43,8 @@
   --color-success-900: #14532d;
   --color-success-950: #052e16;
 
-  --color-warning-50: #fffbeb;
+  /* Warning (Yellow family in Figma Brand) */
+  --color-warning-50:  #fffbeb;
   --color-warning-100: #fef3c7;
   --color-warning-200: #fde68a;
   --color-warning-300: #fcd34d;
@@ -48,7 +56,8 @@
   --color-warning-900: #78350f;
   --color-warning-950: #451a03;
 
-  --color-info-50: #eff6ff;
+  /* Info (Blue family in Figma Brand) */
+  --color-info-50:  #eff6ff;
   --color-info-100: #dbeafe;
   --color-info-200: #bfdbfe;
   --color-info-300: #93c5fd;
@@ -60,7 +69,8 @@
   --color-info-900: #1e3a8a;
   --color-info-950: #172554;
 
-  --color-error-50: #fef2f2;
+  /* Error (Red family in Figma Brand) */
+  --color-error-50:  #fef2f2;
   --color-error-100: #fee2e2;
   --color-error-200: #fecaca;
   --color-error-300: #fca5a5;
@@ -71,4 +81,150 @@
   --color-error-800: #991b1b;
   --color-error-900: #7f1d1d;
   --color-error-950: #450a0a;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LAYER 2 — ALIAS
+   Semantic color groups referencing the Brand layer.
+   5-step primary/status scales (100–500) span the Brand 11-step scale at
+   evenly-spaced positions. Neutral passes through 1:1 (50–900); step 1000
+   maps to Brand 950 (darkest available).
+   Corresponds to the "Alias" variable set in Figma.
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root {
+  /* Primary — maps to Brand primary (orange) scale
+     100=lightest tint · 300=main action · 500=darkest shade            */
+  --primary-100: var(--color-brand-100);
+  --primary-200: var(--color-brand-300);
+  --primary-300: var(--color-brand-500);
+  --primary-400: var(--color-brand-700);
+  --primary-500: var(--color-brand-900);
+
+  /* Neutral — maps to Brand neutral (gray) scale                        */
+  --neutral-50:    var(--color-neutral-50);
+  --neutral-100:   var(--color-neutral-100);
+  --neutral-200:   var(--color-neutral-200);
+  --neutral-300:   var(--color-neutral-300);
+  --neutral-400:   var(--color-neutral-400);
+  --neutral-500:   var(--color-neutral-500);
+  --neutral-600:   var(--color-neutral-600);
+  --neutral-700:   var(--color-neutral-700);
+  --neutral-800:   var(--color-neutral-800);
+  --neutral-900:   var(--color-neutral-900);
+  --neutral-1000:  var(--color-neutral-950);
+  --neutral-black: #000000;
+  --neutral-white: #ffffff;
+
+  /* Success — maps to Brand success (green) scale                       */
+  --success-100: var(--color-success-100);
+  --success-200: var(--color-success-300);
+  --success-300: var(--color-success-500);
+  --success-400: var(--color-success-700);
+  --success-500: var(--color-success-900);
+
+  /* Error — maps to Brand error (red) scale                             */
+  --error-100: var(--color-error-100);
+  --error-200: var(--color-error-300);
+  --error-300: var(--color-error-500);
+  --error-400: var(--color-error-700);
+  --error-500: var(--color-error-900);
+
+  /* Info — maps to Brand info (blue) scale                              */
+  --info-100: var(--color-info-100);
+  --info-200: var(--color-info-300);
+  --info-300: var(--color-info-500);
+  --info-400: var(--color-info-700);
+  --info-500: var(--color-info-900);
+
+  /* Warning — maps to Brand warning (yellow) scale                      */
+  --warning-100: var(--color-warning-100);
+  --warning-200: var(--color-warning-300);
+  --warning-300: var(--color-warning-500);
+  --warning-400: var(--color-warning-700);
+  --warning-500: var(--color-warning-900);
+
+  /* Border-radius (Figma Alias: Border-radius)                          */
+  --radius-xs:    2px;
+  --radius-sm:    4px;
+  --radius-md:    8px;
+  --radius-lg:    16px;
+  --radius-xl:    24px;
+  --radius-2xl:   32px;
+  --radius-round: 999px;
+
+  /* Border-width (Figma Alias: Border-width)                            */
+  --border-width-s: 1px;
+  --border-width-m: 2px;
+  --border-width-l: 4px;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LAYER 3 — MAPPED
+   Component semantic tokens referencing the Alias layer.
+   JS overrides surface-page, border-default, text-primary, text-secondary,
+   text-muted, text-inverse, accent, accent-hover and status vars inline —
+   those chains still resolve correctly because Mapped vars reference the
+   same computed properties.
+   Corresponds to the "Mapped" variable set in Figma (Mode 1).
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root {
+  /* ── Text ──────────────────────────────────────────────────────────── */
+  --text-headings:     var(--text-primary);       /* Neutral/50  — light on dark */
+  --text-body:         var(--text-primary);       /* Neutral/50  */
+  --text-dark:         var(--text-inverse);       /* Neutral/900 — dark on light */
+  --text-body-dark:    var(--text-secondary);     /* Neutral/300 — secondary gray */
+  --text-action:       var(--accent);             /* Primary/300 — interactive */
+  --text-action-hover: var(--accent-hover);       /* Primary/200 — hover */
+  --text-disabled:     var(--text-muted);         /* Neutral/500 — muted/disabled */
+  --text-info:         var(--info-text);          /* Info/300    */
+  --text-success:      var(--success-text);       /* Success/300 */
+  --text-error:        var(--error-text);         /* Error/300   */
+  --text-warning:      var(--warning-text);       /* Warning/300 */
+
+  /* ── Surface ───────────────────────────────────────────────────────── */
+  /* --surface-page: set by JS (Neutral/1000 equivalent)                 */
+  --surface-primary:              var(--surface-card);     /* Neutral/900 */
+  --surface-secondary:            var(--surface-raised);   /* Neutral/800 */
+  --surface-tertiary:             var(--surface-inset);    /* Neutral/700 */
+  --surface-action:               var(--accent);           /* Primary/400 */
+  --surface-action-hover:         var(--accent-hover);     /* Primary/400 */
+  --surface-action-active:        var(--accent);           /* Primary/300 */
+  --surface-action-error:         var(--error-icon);       /* Error/300   */
+  --surface-action-error-faded:   var(--error-surface);    /* Error/500   */
+  --surface-action-info:          var(--info-icon);        /* Info/300    */
+  --surface-action-info-faded:    var(--info-surface);     /* Info/500    */
+  --surface-action-success:       var(--success-icon);     /* Success/300 */
+  --surface-action-success-faded: var(--success-surface);  /* Success/500 */
+  --surface-action-warning:       var(--warning-icon);     /* Warning/300 */
+  --surface-action-warning-faded: var(--warning-surface);  /* Warning/500 */
+
+  /* ── Icon ──────────────────────────────────────────────────────────── */
+  --icon-default:  var(--text-muted);     /* Neutral/200 */
+  --icon-primary:  var(--text-primary);   /* Neutral/50  */
+  --icon-dark:     var(--text-inverse);   /* Neutral/900 */
+  --icon-disabled: var(--text-muted);     /* Neutral/500 */
+  --icon-info:     var(--info-icon);      /* Info/300    */
+  --icon-success:  var(--success-icon);   /* Success/300 */
+  --icon-error:    var(--error-icon);     /* Error/300   */
+  --icon-warning:  var(--warning-icon);   /* Warning/300 */
+
+  /* ── Effects ───────────────────────────────────────────────────────── */
+  --effect-glow-primary-light:    var(--accent-hover);   /* Primary/200 */
+  --effect-glow-primary-dark:     var(--accent);         /* Primary/400 */
+  --effect-outline-primary-dark:  var(--accent);         /* Primary/400 */
+  --effect-outline-primary-light: var(--accent-hover);   /* Primary/300 */
+  --effect-outline-gray:          var(--border-default); /* Neutral/600 */
+
+  /* ── Borders & Dividers ─────────────────────────────────────────────── */
+  --border-primary:       var(--accent);          /* Primary/300 */
+  --border-primary-hover: var(--accent-hover);    /* Primary/200 */
+  /* --border-default: set by JS (Neutral/600)                           */
+  --border-disabled:  var(--border-subtle);       /* Neutral/600 */
+  --border-hover:     var(--border-strong);       /* Neutral/400 */
+  --border-info:      var(--info-border);         /* Info/300    */
+  --border-success:   var(--success-border);      /* Success/300 */
+  --border-error:     var(--error-border);        /* Error/300   */
+  --border-highlight: var(--warning-border);      /* Warning/100 */
 }

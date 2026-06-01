@@ -1696,8 +1696,8 @@ body {
   background: oklch(15% 0.008 265);
   border: 1px solid oklch(26% 0.01 265);
   border-radius: 14px;
-  width: min(680px, calc(100vw - 48px));
-  max-height: calc(100dvh - 80px);
+  width: min(720px, calc(100vw - 48px));
+  max-height: calc(100dvh - 60px);
   display: flex;
   flex-direction: column;
   animation: modal-in 240ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
@@ -1752,7 +1752,44 @@ body {
   background: linear-gradient(90deg, oklch(68% 0.18 250) 0%, oklch(72% 0.18 200) 100%);
   border-radius: 1px 1px 0 0;
 }
-.modal-body { padding: 16px; flex: 1; overflow: hidden; display: flex; }
+/* Token export modal — layer meta bar & action buttons */
+.modal-title-group { display: flex; align-items: center; gap: 10px; }
+.modal-format-badge {
+  font-size: 10px; font-weight: 700;
+  color: oklch(55% 0.008 265);
+  background: oklch(20% 0.01 265);
+  border: 1px solid oklch(28% 0.01 265);
+  padding: 2px 8px; border-radius: 20px;
+  letter-spacing: 0.05em; text-transform: uppercase;
+}
+.modal-tab-num { font-size: 9px; font-weight: 700; color: oklch(38% 0.008 265); letter-spacing: 0.04em; margin-right: 2px; }
+.modal-tab--active .modal-tab-num { color: oklch(55% 0.12 250); }
+.modal-layer-meta {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; padding: 8px 16px;
+  border-bottom: 1px solid oklch(22% 0.01 265);
+  background: oklch(13% 0.006 265);
+  flex-shrink: 0;
+}
+.modal-layer-desc { font-size: 11.5px; color: oklch(48% 0.008 265); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.modal-layer-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.modal-action-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: var(--font-sans); font-size: 12px; font-weight: 600;
+  color: oklch(65% 0.008 265);
+  background: oklch(20% 0.01 265);
+  border: 1px solid oklch(28% 0.01 265);
+  border-radius: 7px; padding: 5px 11px;
+  cursor: pointer; outline: none;
+  transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
+  white-space: nowrap;
+}
+.modal-action-btn:hover { color: oklch(88% 0.005 265); background: oklch(24% 0.01 265); border-color: oklch(34% 0.01 265); }
+.modal-action-btn:focus-visible { box-shadow: 0 0 0 2px oklch(18% 0.01 265), 0 0 0 4px oklch(60% 0.18 250); }
+.modal-action-btn--primary { color: oklch(88% 0.005 265); background: oklch(22% 0.01 265); border-color: oklch(32% 0.01 265); }
+.modal-action-btn--primary:hover { background: oklch(28% 0.01 265); }
+
+.modal-body { padding: 0; flex: 1; overflow: hidden; display: flex; }
 .code-block-wrapper {
   position: relative;
   flex: 1;
@@ -1788,11 +1825,178 @@ body {
   border-radius: 8px;
   padding: 14px 16px;
   width: 100%;
-  min-height: 360px;
-  max-height: 420px;
+  min-height: 420px;
+  max-height: 520px;
   resize: none;
   outline: none;
 }
+
+/* ─── Token Hierarchy Visual ─────────────────────────────────────────────── */
+.modal-action-btn--visual { font-variant-numeric: tabular-nums; }
+.modal-action-btn--visual.is-active {
+  color: oklch(72% 0.15 250);
+  background: oklch(20% 0.04 250);
+  border-color: oklch(32% 0.08 250);
+}
+
+.token-hierarchy {
+  flex: 1;
+  overflow-y: auto;
+  background: oklch(11% 0.006 265);
+  min-height: 420px;
+  max-height: 520px;
+}
+
+/* Sticky column labels */
+.th-header-row {
+  display: grid;
+  grid-template-columns: 1fr 24px 1fr 24px 1fr;
+  padding: 9px 16px 8px;
+  border-bottom: 1px solid oklch(22% 0.01 265);
+  position: sticky;
+  top: 0;
+  background: oklch(14% 0.008 265);
+  z-index: 2;
+}
+.th-col-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: oklch(42% 0.008 265);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.th-col-label-num {
+  font-size: 8px;
+  color: oklch(32% 0.008 265);
+}
+.th-col-label--brand  .th-col-label-num { color: oklch(40% 0.06 50); }
+.th-col-label--alias  .th-col-label-num { color: oklch(40% 0.08 250); }
+.th-col-label--mapped .th-col-label-num { color: oklch(40% 0.08 160); }
+.th-col-label--brand  { color: oklch(55% 0.08 50); }
+.th-col-label--alias  { color: oklch(55% 0.1 250); }
+.th-col-label--mapped { color: oklch(55% 0.1 160); }
+
+/* Color family section */
+.th-section { }
+.th-section-header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 16px 5px;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--sc);
+  border-top: 1px solid oklch(18% 0.008 265);
+  position: sticky;
+  top: 34px;
+  background: oklch(11% 0.006 265);
+  z-index: 1;
+}
+.th-section:first-child .th-section-header { border-top: none; }
+.th-section-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--sc);
+  box-shadow: 0 0 6px color-mix(in oklch, var(--sc) 60%, transparent);
+  flex-shrink: 0;
+}
+.th-section-count {
+  margin-left: auto;
+  font-size: 9px;
+  color: oklch(32% 0.008 265);
+  font-weight: 600;
+}
+
+/* Dependency rows */
+.th-row {
+  display: grid;
+  grid-template-columns: 1fr 24px 1fr 24px 1fr;
+  align-items: start;
+  padding: 5px 16px;
+  border-bottom: 1px solid oklch(15% 0.006 265);
+  transition: background 100ms ease;
+}
+.th-row:hover { background: oklch(13.5% 0.007 265); }
+.th-row--unused { opacity: 0.35; }
+
+.th-cell { display: flex; flex-direction: column; gap: 3px; padding: 2px 0; }
+
+.th-connector {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 12px;
+  font-size: 12px;
+  color: oklch(28% 0.008 265);
+  user-select: none;
+}
+.th-connector--active { color: oklch(42% 0.008 265); }
+
+/* Token card */
+.th-token {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  padding: 6px 7px;
+  border-radius: 7px;
+  background: oklch(14.5% 0.008 265);
+  border: 1px solid oklch(20% 0.008 265);
+  min-width: 0;
+}
+.th-token + .th-token { margin-top: 3px; }
+.th-token--brand  { border-color: oklch(22% 0.05 50  / 0.5); }
+.th-token--alias  { border-color: oklch(22% 0.06 250 / 0.5); }
+.th-token--mapped { border-color: oklch(20% 0.04 160 / 0.5); }
+
+.th-swatch {
+  width: 20px; height: 20px;
+  border-radius: 5px;
+  flex-shrink: 0;
+  border: 1px solid oklch(0% 0 0 / 0.25);
+  margin-top: 1px;
+}
+
+.th-token-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.th-token-name {
+  font-size: 10.5px; font-weight: 600;
+  color: oklch(80% 0.005 265);
+  letter-spacing: -0.01em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.th-token-hex {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: oklch(50% 0.008 265);
+  letter-spacing: 0.02em;
+}
+.th-token-ref {
+  font-size: 9px;
+  color: oklch(36% 0.008 265);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.th-empty {
+  font-size: 9.5px; color: oklch(28% 0.008 265);
+  padding: 8px 7px; font-style: italic;
+}
+
+/* Scope badges */
+.th-scope {
+  display: inline-flex;
+  font-size: 8.5px; font-weight: 700; letter-spacing: 0.04em;
+  padding: 1px 5px; border-radius: 3px;
+  width: fit-content; white-space: nowrap; margin-top: 1px;
+}
+.th-scope--text   { background: oklch(20% 0.05 250); color: oklch(62% 0.14 250); }
+.th-scope--frame  { background: oklch(17% 0.04 155); color: oklch(58% 0.14 155); }
+.th-scope--shape  { background: oklch(19% 0.05 50);  color: oklch(65% 0.16 50);  }
+.th-scope--effect { background: oklch(18% 0.05 290); color: oklch(62% 0.14 290); }
+.th-scope--stroke { background: oklch(18% 0.04 15);  color: oklch(60% 0.14 15);  }
+.th-scope--all    { background: oklch(17% 0.006 265); color: oklch(50% 0.008 265); }
 
 /* Tooltip
    Positioning is entirely via CSS vars (--tip-x, --tip-y) driving a
