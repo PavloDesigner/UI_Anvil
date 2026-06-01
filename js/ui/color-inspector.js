@@ -14,12 +14,15 @@
  * Pass 2 — first candidate that passes the saturation/interest filter (hex only)
  */
 
-import { showTooltip, hideTooltip } from './tooltip.js';
+import { showTooltip, hideTooltip, flashCopied } from './tooltip.js';
 import { subscribe, getState, getStepLabels } from '../state.js';
+import { copyToClipboard } from '../utils.js';
+import { showToast } from './toast.js';
 
-let _canvas = null;
-let _varMap = new Map();  // hex → "Neutral 600"
-let _lastEl = null;
+let _canvas     = null;
+let _varMap     = new Map();  // hex → "Neutral 600"
+let _lastEl     = null;
+let _currentHex = null;       // hex currently under the pointer (for click-copy)
 
 /* ─── Init ─── */
 export function initColorInspector() {
@@ -32,6 +35,8 @@ export function initColorInspector() {
 
   _canvas.addEventListener('mouseover', _onOver);
   _canvas.addEventListener('mouseleave', _onLeave);
+  _canvas.addEventListener('click', _onClick);
+  _canvas.style.cursor = 'default';
 }
 
 /* ─── Event handlers ─── */
@@ -48,18 +53,33 @@ function _onOver(e) {
   if (found?.el === _lastEl) return;
   _lastEl = found?.el ?? null;
 
-  if (!found) { hideTooltip(); return; }
+  if (!found) { _currentHex = null; hideTooltip(); return; }
 
   const hex      = _toHex(found.color.r, found.color.g, found.color.b);
   const varLabel = _varMap.get(hex.toLowerCase());
   const label    = varLabel ? `${hex}  ·  ${varLabel}` : hex;
 
+  _currentHex = hex;
+  _canvas.style.cursor = 'pointer';   // signal the hovered color is copyable
   showTooltip(found.el, label, hex);
 }
 
 function _onLeave() {
   _lastEl = null;
+  _currentHex = null;
+  _canvas.style.cursor = 'default';
   hideTooltip();
+}
+
+/* Click a colored element in the preview to copy its hex */
+async function _onClick(e) {
+  // Don't hijack real controls (form inputs, the typography Copy-CSS button)
+  if (e.target.closest('input, textarea, select, .typo-copy-btn')) return;
+  if (!_currentHex) return;
+  const val = _currentHex.toUpperCase();
+  await copyToClipboard(val);
+  flashCopied(_currentHex);
+  showToast(`Copied ${val}`);
 }
 
 /* ─── Color extraction ─── */
