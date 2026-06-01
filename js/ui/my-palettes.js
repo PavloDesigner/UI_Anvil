@@ -7,7 +7,8 @@ import {
   setShowSecondaryBrand, setShowTertiaryBrand, setPaletteInput,
 } from '../state.js';
 import { showToast } from './toast.js';
-import { showTooltip, hideTooltip } from './tooltip.js';
+import { showTooltip, hideTooltip, flashCopied } from './tooltip.js';
+import { copyToClipboard } from '../utils.js';
 
 const METHOD_LABELS = {
   tailwind:         'Tailwind',
@@ -44,6 +45,16 @@ export function initMyPalettes(opts = {}) {
     });
     grid.addEventListener('mouseout', e => {
       if (e.target.closest('.mp-swatch')) hideTooltip();
+    });
+    /* Click a preview swatch to copy its color */
+    grid.addEventListener('click', async e => {
+      const swatch = e.target.closest('.mp-swatch');
+      if (!swatch) return;
+      const hex = swatch.dataset.color;
+      if (!hex) return;
+      await copyToClipboard(hex.toUpperCase());
+      flashCopied(hex);
+      showToast(`Copied ${hex.toUpperCase()}`);
     });
   }
 }

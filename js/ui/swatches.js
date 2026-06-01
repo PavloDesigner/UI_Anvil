@@ -4,7 +4,7 @@ import { getState, getStepLabels, subscribe, setFocusedPalette } from '../state.
 import { formatColor } from '../color.js';
 import { copyToClipboard } from '../utils.js';
 import { showToast } from './toast.js';
-import { showTooltip, hideTooltip } from './tooltip.js';
+import { showTooltip, hideTooltip, flashCopied } from './tooltip.js';
 import { ROLES } from '../generators/radix.js';
 
 let stripEl;
@@ -101,6 +101,7 @@ function renderStrip() {
     btn.addEventListener('click', async () => {
       const val = formatColor(hex, format);
       await copyToClipboard(val);
+      flashCopied(hex);
       showToast(`Copied ${val}`);
     });
 
