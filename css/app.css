@@ -1841,11 +1841,12 @@ body {
   transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Hex color tooltip — dot swatch + monospace value */
+/* Hex color tooltip — dot swatch + monospace value + copy affordance */
 .tooltip--hex {
   display: flex;
   align-items: center;
   gap: 7px;
+  cursor: pointer;
 }
 .tooltip--hex::before {
   content: '';
@@ -1856,7 +1857,26 @@ body {
   background: var(--tip-clr, oklch(50% 0 0));
   flex-shrink: 0;
   box-shadow: 0 0 0 1.5px oklch(0% 0 0 / 0.25), inset 0 0 0 1px oklch(100% 0 0 / 0.15);
+  transition: transform 160ms cubic-bezier(0.22, 1, 0.36, 1);
 }
+.tooltip-label { line-height: 1; }
+/* Copy glyph — dimmed by default, brightens on chip hover */
+.tooltip-copy {
+  display: flex;
+  align-items: center;
+  margin-left: 1px;
+  color: oklch(52% 0.01 265);
+  transition: color 140ms ease, transform 140ms ease;
+}
+.tooltip--hex:hover .tooltip-copy { color: oklch(82% 0.008 265); }
+.tooltip--hex:active { transform: translate(var(--tip-x, 0px), var(--tip-y, 0px)) scale(0.96); }
+/* Copied confirmation — green tick + accent text */
+.tooltip--copied {
+  border-color: color-mix(in oklch, oklch(72% 0.17 150) 50%, oklch(28% 0.012 265));
+}
+.tooltip--copied .tooltip-label { color: oklch(82% 0.16 150); }
+.tooltip--copied .tooltip-copy  { color: oklch(75% 0.17 150); }
+.tooltip--copied::before { transform: scale(0.82); }
 
 /* ══════════════════════════════════════════════════════════════
    FONTS TAB — sidebar font pickers + scale controls
