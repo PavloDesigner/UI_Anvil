@@ -3,9 +3,9 @@
   "configurations": [
     {
       "name": "ui-colors",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["serve", "-p", "8080", "E:\\Claude\\Figma\\ui-colors"],
-      "port": 8080
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["serve.js"],
+      "port": 3000
     }
   ]
 }
