@@ -157,6 +157,13 @@
   --border-width-s: 1px;
   --border-width-m: 2px;
   --border-width-l: 4px;
+
+  /* Spacing scale (Figma Alias: Spacing → Scale)                        */
+  --spacing-2xs: 4px;
+  --spacing-xs:  8px;
+  --spacing-sm:  16px;
+  --spacing-md:  24px;
+  --spacing-lg:  32px;
 }
 
 

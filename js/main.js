@@ -21,6 +21,8 @@ import { initImageImport }    from './ui/image-import.js';
 import { getTypography }      from './typography-state.js';
 import { initTypography }     from './typography-state.js';
 import { initFontsTab }       from './ui/fonts-tab.js';
+import { initIcons }          from './icon-state.js';
+import { initIconsTab }       from './ui/icons-tab.js';
 
 /* ─── View switching ─── */
 let _activeView = 'generate';
@@ -53,10 +55,12 @@ async function main() {
   initToast();
   initState();
   initTypography();
+  initIcons();
   initThemeToggle();
   initSidebar();
   initSwatches();
   initPreviews();
+  initIconsTab();
   initExportModal();
   initColorInspector();
   initColorWheel();

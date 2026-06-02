@@ -1477,6 +1477,562 @@
 .toast-preview-icon { flex-shrink: 0; }
 
 /* ═══════════════════════════════════════════════════════════════
+   CASINO UI (KUSH Design) — UI tab preview
+   Colors: Mapped token layer · Fonts: typography state vars
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Token map (Figma → Mapped vars):
+   #121212 page=--surface-page · #1d1d1d=--surface-primary · #272727=--surface-tertiary
+   #373737=--border-default · #777=--border-hover · #9a9a9a=--text-body-dark
+   #fefefe=--text-headings · #029f6e=--text-success · #fd8701=--surface-action-active
+   #fea744=--border-primary-hover · #a64904=--surface-action/--primary-400 · #521f11=--primary-500
+   Spacing: 2xs=4 xs=8 sm=16 md=24 lg=32 · Radius: md=8 lg=16 xl=24 round=999 */
+
+.csg-root {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;                              /* spacing/lg between major sections */
+  background: var(--surface-page);
+  font-family: var(--font-body-family, var(--font-sans));
+
+  /* Brand accent chain — secondary/tertiary appear when user adds them,
+     otherwise gracefully fall back to the primary brand accent */
+  --csg-accent:  var(--surface-action-active);
+  --csg-accent2: var(--secondary, var(--surface-action-active));
+  --csg-accent3: var(--tertiary, var(--secondary, var(--surface-action-active)));
+  /* Banner glow — prefers secondary, then tertiary, falls back to primary */
+  --csg-glow:    var(--secondary, var(--tertiary, var(--surface-action-active)));
+}
+
+/* Inline SVG icons — square 24×24, crisp, tintable via currentColor */
+.csg-svg { width: 24px; height: 24px; display: inline-flex; flex-shrink: 0; }
+.csg-svg svg { width: 100%; height: 100%; display: block; }
+.csg-ic--success { color: var(--color-success-500); }
+.csg-ic--error   { color: var(--color-error-500); }
+.csg-ic--warning { color: var(--color-warning-500); }
+.csg-ic--info    { color: var(--color-info-500); }
+.csg-ic--accent  { color: var(--csg-accent); }
+.csg-ic--accent2 { color: var(--csg-accent2); }
+.csg-ic--accent3 { color: var(--csg-accent3); }
+
+/* ── Hero banner (h=420px, br=24px) ─────────────────────────── */
+.csg-hero {
+  position: relative;
+  height: 420px;
+  background: var(--surface-secondary);    /* neutral base */
+  border-radius: var(--radius-xl);         /* 24px */
+  overflow: hidden;
+  flex-shrink: 0;
+}
+/* Radial glow sits BEHIND the artwork (shows through transparent areas) —
+   a large round halo on the right side */
+.csg-hero-glow {
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(circle 620px at 80% 50%,
+      color-mix(in oklch, var(--csg-glow) 60%, transparent) 0%,
+      color-mix(in oklch, var(--csg-glow) 30%, transparent) 50%,
+      transparent 80%);
+}
+/* Artwork fills the banner, centered */
+.csg-hero-art {
+  position: absolute; inset: 0; z-index: 1;
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: center;
+  pointer-events: none;
+}
+/* Left scrim keeps the heading readable over the artwork */
+.csg-hero::after {
+  content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  background: linear-gradient(90deg,
+    color-mix(in oklch, var(--surface-secondary) 88%, transparent) 0%,
+    color-mix(in oklch, var(--surface-secondary) 45%, transparent) 32%,
+    transparent 60%);
+}
+.csg-hero-content {
+  position: relative; z-index: 3;
+  padding-left: 64px;                      /* Figma headline left offset */
+  height: 100%;
+  display: flex; flex-direction: column; justify-content: center;
+  gap: var(--spacing-lg, 32px);           /* gap between text block and CTA */
+}
+.csg-hero-text { display: flex; flex-direction: column; gap: var(--spacing-sm, 16px); }
+.csg-hero-title {
+  font-family: var(--font-heading-family, var(--font-sans));
+  font-size: clamp(32px, 4vw, 48px);      /* heading/h2 = 48px */
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-headings);
+  line-height: 1.08;
+}
+.csg-hero-sub {
+  font-size: 16px;                         /* body/md = 16px */
+  color: var(--text-headings);
+  max-width: 380px;
+}
+.csg-cta-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--font-heading-family, var(--font-sans));  /* Unbounded button */
+  font-size: 12px; font-weight: 700; letter-spacing: 0.04em;
+  color: var(--text-dark);                 /* dark text on orange */
+  background: var(--surface-action-active);
+  border: none; border-radius: var(--radius-xl);   /* 24px */
+  padding: 16px 24px; cursor: pointer; outline: none;
+  width: fit-content;
+  transition: filter 150ms ease, transform 150ms ease;
+}
+.csg-cta-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.csg-cta-btn--sm { padding: 8px 16px; border-radius: var(--radius-lg); }  /* 16px */
+.csg-hero-dots {
+  position: absolute; bottom: 16px; left: 64px;
+  display: flex; gap: 8px; align-items: center;
+}
+.csg-dot { width: 8px; height: 8px; border-radius: var(--radius-sm); background: var(--border-hover); opacity: .5; }
+.csg-dot--active { width: 40px; background: var(--text-headings); opacity: 1; }
+
+/* ── Promo info cards (p=8, rounded-top 40px, pill cards) ────── */
+.csg-promo-strip {
+  display: flex; gap: var(--spacing-xs, 8px);
+  padding: var(--spacing-xs, 8px);
+  background: var(--surface-page);
+  border-radius: 40px 40px 0 0;
+  margin: -56px auto 0;                    /* overlap banner bottom */
+  width: max-content; max-width: 100%;
+  position: relative; z-index: 2;
+}
+.csg-promo-card {
+  display: flex; align-items: center; gap: var(--spacing-xs, 8px);
+  flex: 1 0 0; min-width: 0;
+  padding: var(--spacing-xs, 8px) var(--spacing-md, 24px) var(--spacing-xs, 8px) var(--spacing-xs, 8px);
+  border: none; border-radius: var(--radius-round);    /* 999px */
+  cursor: pointer; outline: none;
+  color: var(--text-headings);             /* default; refined by contrast pass */
+  background: var(--color-info-500);       /* saturated blue (Info/300) */
+  transition: filter 150ms ease, transform 150ms ease;
+}
+.csg-promo-card:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.csg-promo-card:nth-child(2) { background: var(--surface-action-active); }   /* orange (active, follows brand) */
+.csg-promo-card:nth-child(3) { background: var(--color-success-500); }       /* saturated green (Success/300) */
+.csg-promo-card--active { box-shadow: 0 0 8px var(--effect-glow-primary-dark); }
+.csg-promo-img {
+  width: 64px; height: 64px; border-radius: var(--radius-round);
+  object-fit: cover; flex-shrink: 0;
+  background: rgba(0,0,0,.15);
+}
+.csg-promo-label {
+  flex: 1; min-width: 0;
+  font-size: 16px; font-weight: 700; color: inherit;  /* follows contrast pass */
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* ── Category tabs (px=16 py=8, br=64px, fs=16px, icon=24) ──── */
+.csg-cat-row {
+  display: flex; gap: var(--spacing-xs, 8px);
+  overflow-x: auto; scrollbar-width: none;
+}
+.csg-cat-row::-webkit-scrollbar { display: none; }
+.csg-cat-tab {
+  display: inline-flex; align-items: center; gap: var(--spacing-xs, 8px);
+  flex-shrink: 0;
+  font-family: var(--font-body-family, var(--font-sans));
+  font-size: 16px; font-weight: 400;
+  color: var(--text-headings);
+  background: var(--surface-tertiary);     /* #272727 */
+  border: 1px solid var(--border-default); /* #373737 */
+  border-radius: 64px; padding: 8px 16px;
+  cursor: pointer; outline: none;
+  transition: border-color 150ms, background 150ms;
+}
+.csg-cat-tab:hover { border-color: var(--border-hover); }
+.csg-cat-tab--active { border-color: var(--border-hover); background: var(--surface-secondary); }
+
+/* ── Section header (icon=24, gap=10, title 20px Unbounded) ── */
+.csg-section { display: flex; flex-direction: column; gap: var(--spacing-sm, 16px); }
+
+.csg-sec-hdr {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.csg-sec-hdr-left { display: flex; align-items: center; gap: 10px; }
+.csg-sec-hdr-right { display: flex; align-items: center; gap: var(--spacing-xs, 8px); }
+
+.csg-sec-title {
+  font-family: var(--font-heading-family, var(--font-sans));
+  font-size: 20px; font-weight: 700; letter-spacing: -0.01em;
+  color: var(--text-headings);
+}
+.csg-see-all {
+  display: inline-flex; align-items: center; gap: var(--spacing-xs, 8px);
+  font-family: var(--font-body-family, var(--font-sans));
+  font-size: 14px; font-weight: 400; color: var(--text-headings);
+  background: var(--surface-tertiary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-round); padding: 8px 16px;
+  cursor: pointer; outline: none;
+}
+.csg-count-pill {
+  background: var(--surface-secondary); color: var(--text-headings);
+  font-size: 12px; font-weight: 700;
+  padding: 2px 8px; border-radius: var(--radius-round);
+}
+.csg-nav-btn {
+  width: 40px; height: 40px; border-radius: var(--radius-md);
+  background: var(--surface-tertiary); border: 1px solid var(--border-default);
+  color: var(--text-headings);             /* default; refined by contrast pass */
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; outline: none;
+  transition: border-color 150ms;
+}
+.csg-nav-btn:hover { border-color: var(--border-hover); }
+
+/* ── Divider (h=2px gradient line) ──────────────────────────── */
+.csg-divider {
+  height: 2px; width: 100%;
+  background: linear-gradient(90deg,
+    var(--border-default) 0%,
+    color-mix(in oklch, var(--border-default) 40%, transparent) 70%,
+    transparent 100%);
+  border-radius: 2px;
+}
+
+/* ── Game cards (br=16px, border=2px, bottom offset shadow=8px) ─ */
+.csg-game-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px var(--spacing-xs, 8px);
+  margin-bottom: 8px;                      /* room for bottom shadow */
+}
+.csg-game-card {
+  position: relative;
+  aspect-ratio: 200/220;
+  border-radius: var(--radius-lg);         /* 16px */
+  overflow: hidden;
+  background: var(--surface-tertiary);
+  border: 2px solid var(--border-hover);   /* #777 default */
+  box-shadow: 0 8px 0 0 var(--border-default);    /* gray-600 bottom edge */
+  cursor: pointer; transition: transform 150ms ease;
+}
+.csg-game-card--hot {
+  border-color: var(--border-primary);     /* #fd8701 */
+  box-shadow: 0 8px 0 0 var(--surface-action);    /* orange-400 bottom edge */
+}
+.csg-game-card:hover { transform: translateY(-4px); }
+.csg-game-card--hot:hover { box-shadow: 0 8px 0 0 var(--surface-action), 0 12px 28px color-mix(in oklch, var(--csg-accent) 45%, transparent); }
+.csg-game-card > img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 400ms cubic-bezier(0.23,1,0.32,1); }
+.csg-game-card:hover > img { transform: scale(1.07); }
+/* Trophy badge (top-left 8px, box p=4 br=12, icon 24px) */
+.csg-game-badge {
+  position: absolute; top: 8px; left: 8px;
+  padding: 4px; border-radius: 12px;
+  background: var(--surface-action-active);
+  box-shadow: 0 0 8px rgba(55,55,55,.5);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-dark);
+}
+/* Play affordance — fades/zooms in on hover */
+.csg-game-play {
+  position: absolute; top: 50%; left: 50%;
+  width: 44px; height: 44px; border-radius: var(--radius-round);
+  background: var(--surface-action-active); color: var(--text-dark);
+  display: flex; align-items: center; justify-content: center;
+  transform: translate(-50%, -50%) scale(0.6);
+  opacity: 0; pointer-events: none;
+  box-shadow: 0 0 16px color-mix(in oklch, var(--csg-accent) 60%, transparent);
+  transition: opacity 200ms ease, transform 250ms cubic-bezier(0.23,1,0.32,1);
+}
+.csg-game-play .csg-svg { width: 22px; height: 22px; }
+.csg-game-card:hover .csg-game-play { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+/* ── Live wins ticker (chip h=48 w=160 br=999, avatar 40px) ─── */
+.csg-live-dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--color-error-500); flex-shrink: 0;
+  animation: csg-live-pulse 1.8s ease-out infinite;
+}
+@keyframes csg-live-pulse {
+  0%   { box-shadow: 0 0 0 0 color-mix(in oklch, var(--color-error-500) 70%, transparent); }
+  70%  { box-shadow: 0 0 0 7px color-mix(in oklch, var(--color-error-500) 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in oklch, var(--color-error-500) 0%, transparent); }
+}
+.csg-livewins { position: relative; overflow: hidden; }
+.csg-livewins-track {
+  display: flex; gap: var(--spacing-xs, 8px);
+  width: max-content;
+  animation: csg-marquee 45s linear infinite;
+}
+.csg-livewins:hover .csg-livewins-track { animation-play-state: paused; }
+@keyframes csg-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.csg-livewins-fade {
+  position: absolute; top: 0; right: 0; bottom: 0;
+  width: 120px; pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--surface-page));
+}
+.csg-win-chip {
+  display: flex; align-items: center; gap: var(--spacing-2xs, 4px);
+  width: 160px; height: 48px; flex-shrink: 0;
+  padding: 4px 12px 4px 4px;
+  background: var(--surface-primary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-round);
+  transition: border-color 150ms ease;
+}
+.csg-win-chip:hover { border-color: var(--border-hover); }
+.csg-win-chip-av {
+  width: 40px; height: 40px; border-radius: var(--radius-round);
+  object-fit: cover; flex-shrink: 0;
+}
+.csg-win-chip-info { display: flex; flex-direction: column; min-width: 0; gap: 1px; }
+.csg-win-chip-game {
+  font-size: 12px; font-weight: 400; color: var(--text-headings);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.csg-win-chip-amt { font-size: 12px; font-weight: 700; color: var(--color-success-500); }
+
+/* ── Tournament cards (h=262px, br=16, p=16, gap=18) ────────── */
+.csg-tourn-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-sm, 16px);
+}
+.csg-tourn-card {
+  position: relative; height: 262px;
+  border-radius: var(--radius-lg); overflow: hidden;
+  background: var(--surface-primary);
+  border: 1px solid var(--border-default);
+}
+.csg-tourn-bg {
+  position: absolute; inset: 0;
+  background-size: cover; background-position: right center;
+}
+.csg-tourn-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg,rgba(29,29,29,.92) 0%,rgba(29,29,29,.45) 55%,rgba(29,29,29,0) 100%);
+}
+.csg-tourn-content {
+  position: relative; z-index: 1;
+  padding: var(--spacing-sm, 16px);
+  height: 100%;
+  display: flex; flex-direction: column; justify-content: space-between;
+  gap: 18px;
+}
+.csg-tourn-top { display: flex; flex-direction: column; gap: var(--spacing-2xs, 4px); }
+.csg-tourn-prize {
+  font-family: var(--font-heading-family, var(--font-sans));
+  font-size: 32px; font-weight: 700; letter-spacing: -0.02em; line-height: 40px;
+  color: var(--color-success-500);         /* saturated green (Success/300) */
+}
+.csg-tourn-name {
+  font-family: var(--font-body-family, var(--font-sans));
+  font-size: 20px; font-weight: 400; color: var(--text-headings);
+}
+/* timer box: 64×48px, p=4, br=16, bg=tertiary, border=default */
+.csg-timer { display: flex; align-items: center; gap: var(--spacing-2xs, 4px); }
+.csg-tbox {
+  width: 64px; height: 48px; padding: 4px;
+  border-radius: var(--radius-lg);
+  background: var(--surface-tertiary); border: 1px solid var(--border-default);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.csg-tval {
+  font-family: var(--font-heading-family, var(--font-sans));
+  font-size: 24px; font-weight: 700; letter-spacing: -0.02em;
+  color: var(--text-headings); line-height: 1;
+}
+.csg-tlbl { font-size: 12px; font-weight: 400; color: var(--text-body-dark); }
+.csg-tsep { font-size: 20px; font-weight: 700; color: var(--text-headings); }
+
+/* ── Hall of Fame ───────────────────────────────────────────── */
+.csg-hof-layout {
+  display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-sm, 16px);
+}
+.csg-hof-wins, .csg-hof-odds { display: flex; flex-direction: column; gap: var(--spacing-sm, 16px); }
+.csg-hof-col-title {
+  font-family: var(--font-body-family, var(--font-sans));
+  font-size: 20px; font-weight: 400; color: var(--text-headings);
+}
+
+/* Wins grid: featured spans 2 cols (row 1), 2 small on row 2 */
+.csg-wins-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-xs, 8px);
+}
+.csg-win-card {
+  position: relative; display: flex; align-items: center;
+  gap: var(--spacing-sm, 16px);
+  border-radius: var(--radius-lg);         /* 16px */
+  overflow: hidden;
+  padding: var(--spacing-xs, 8px);
+  border: 1px solid var(--border-primary-hover);
+}
+.csg-win-card--1 {
+  grid-column: 1 / span 2;
+  background: var(--surface-action-active); /* #fd8701 */
+  border-color: var(--border-primary-hover);/* #fea744 */
+  box-shadow: 0 0 8px var(--effect-glow-primary-dark);   /* orange-400 glow */
+}
+.csg-win-card--2 {
+  background: var(--surface-action);        /* #a64904 */
+  border-color: var(--border-primary);      /* #fd8701 */
+}
+.csg-win-card--3 {
+  background: var(--surface-tertiary);      /* #272727 */
+  border-color: var(--border-default);      /* #373737 */
+}
+.csg-win-img {
+  height: 100%; aspect-ratio: 150/176;
+  max-height: 88px;
+  object-fit: cover; border-radius: var(--radius-md);    /* 8px */
+  flex-shrink: 0;
+}
+.csg-win-card--1 .csg-win-img { max-height: 96px; }
+.csg-win-info {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column; gap: var(--spacing-2xs, 4px);
+  justify-content: center; padding: var(--spacing-xs, 8px) 0;
+}
+.csg-win-amount {
+  font-family: var(--font-heading-family, var(--font-sans));
+  font-size: 48px; font-weight: 700; letter-spacing: -0.03em; line-height: 56px;
+  color: var(--text-headings); white-space: nowrap;
+}
+.csg-win-amount--sm { font-size: 20px; line-height: 24px; }
+.csg-win-game {
+  font-family: var(--font-body-family, var(--font-sans));
+  font-size: 20px; font-weight: 400; color: var(--text-headings);
+}
+.csg-win-game--sm { font-size: 16px; }
+.csg-win-provider { display: flex; }
+/* provider chip: bg=primary, px=8 py=4, br=16, gap=4 */
+.csg-provider-chip {
+  display: inline-flex; align-items: center; gap: var(--spacing-2xs, 4px);
+  background: var(--surface-primary);
+  padding: 4px 8px; border-radius: var(--radius-lg);
+  font-size: 16px; color: var(--text-headings);
+}
+.csg-prov-logo { width: 24px; height: 13px; object-fit: contain; }
+.csg-prov-text {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  background: var(--surface-tertiary); color: var(--text-headings);
+  padding: 1px 5px; border-radius: var(--radius-sm);
+}
+/* rank badge: pl=24 pr=16 py=24, br round-left */
+.csg-rank-badge {
+  position: absolute; right: -1px; top: 50%; transform: translateY(-50%);
+  color: var(--text-headings);
+  font-family: var(--font-body-family, var(--font-sans));
+  font-weight: 700; font-size: 16px;
+  padding: 24px 16px 24px 24px;
+  border-radius: var(--radius-round) 0 0 var(--radius-round);
+  display: flex; align-items: center;
+}
+.csg-rank-badge--1 { background: var(--surface-action); }   /* #a64904 */
+.csg-rank-badge--2 { background: var(--primary-500); }      /* #521f11 */
+.csg-rank-badge--3 { background: var(--surface-page); }     /* #121212 */
+
+/* Top odds list: each row a card (bg=primary, p=8, br=16) */
+.csg-odds-list { display: flex; flex-direction: column; gap: var(--spacing-xs, 8px); }
+.csg-odds-card {
+  display: flex; align-items: center; gap: var(--spacing-xs, 8px);
+  background: var(--surface-primary);
+  padding: var(--spacing-xs, 8px);
+  border-radius: var(--radius-lg);
+}
+.csg-odds-img {
+  width: 56px; height: 56px; border-radius: var(--radius-md);
+  object-fit: cover; flex-shrink: 0;
+}
+.csg-odds-meta { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.csg-odds-name {
+  font-size: 16px; font-weight: 700; color: var(--text-headings);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.csg-odds-user { font-size: 16px; font-weight: 400; color: var(--text-body-dark); }
+.csg-odds-right { display: flex; flex-direction: column; align-items: flex-end; gap: var(--spacing-2xs, 4px); flex-shrink: 0; }
+.csg-odds-total { font-size: 16px; font-weight: 700; color: var(--color-success-500); }
+/* detail container: bg=tertiary, p=4, br=16, gap=4 */
+.csg-odds-detail {
+  display: flex; align-items: center; gap: var(--spacing-2xs, 4px);
+  background: var(--surface-tertiary);
+  padding: 4px; border-radius: var(--radius-lg);
+}
+.csg-odds-bet { font-size: 12px; color: var(--text-body-dark); padding-left: 4px; }
+/* multiplier pill: bg=success/300, p=4, br=16 */
+.csg-odds-mult {
+  font-size: 12px; font-weight: 600; color: var(--text-headings);
+  background: var(--color-success-500);
+  padding: 4px 8px; border-radius: var(--radius-lg);
+}
+.csg-odds-card { transition: transform 150ms ease; }
+.csg-odds-card:hover { transform: translateX(2px); }
+
+/* Secondary/tertiary showcase: 2nd tournament uses the secondary accent */
+.csg-tourn-card--alt .csg-cta-btn { background: var(--csg-accent2); }
+.csg-tourn-card--alt .csg-tbox    { border-color: color-mix(in oklch, var(--csg-accent2) 40%, var(--border-default)); }
+
+/* ═══ Animations ═══════════════════════════════════════════════ */
+@keyframes csg-fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+/* Staggered entrance — plays ONLY on first load (.csg-enter), not on rebuilds
+   triggered by color/icon changes (avoids a distracting replay each time) */
+.csg-enter > * { animation: csg-fade-up 520ms cubic-bezier(0.23,1,0.32,1) both; }
+.csg-enter > *:nth-child(1) { animation-delay: 0ms; }
+.csg-enter > *:nth-child(2) { animation-delay: 70ms; }
+.csg-enter > *:nth-child(3) { animation-delay: 140ms; }
+.csg-enter > *:nth-child(4) { animation-delay: 210ms; }
+.csg-enter > *:nth-child(5) { animation-delay: 280ms; }
+.csg-enter > *:nth-child(6) { animation-delay: 350ms; }
+.csg-enter > *:nth-child(7) { animation-delay: 420ms; }
+
+/* Game cards rise in, staggered by their index — first load only */
+.csg-enter .csg-game-card {
+  animation: csg-fade-up 460ms cubic-bezier(0.23,1,0.32,1) both;
+  animation-delay: calc(var(--csg-i, 0) * 55ms + 150ms);
+}
+
+/* Featured win card — gentle glow breathing */
+.csg-win-card--1 { animation: csg-glow-pulse 3.2s ease-in-out infinite; }
+@keyframes csg-glow-pulse {
+  0%, 100% { box-shadow: 0 0 8px var(--effect-glow-primary-dark); }
+  50%      { box-shadow: 0 0 22px color-mix(in oklch, var(--effect-glow-primary-dark) 85%, transparent); }
+}
+
+/* Hero CTA — soft pulsing halo */
+.csg-hero .csg-cta-btn { animation: csg-cta-pulse 2.6s ease-in-out infinite; }
+@keyframes csg-cta-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklch, var(--surface-action-active) 0%, transparent); }
+  50%      { box-shadow: 0 0 22px 2px color-mix(in oklch, var(--surface-action-active) 45%, transparent); }
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .csg-root > *, .csg-game-card,
+  .csg-win-card--1, .csg-hero .csg-cta-btn,
+  .csg-livewins-track, .csg-live-dot {
+    animation: none !important;
+  }
+}
+
+/* ── Casino UI mobile ───────────────────────────────────────── */
+@media (max-width: 768px) {
+  .csg-root { gap: 20px; }
+  .csg-hero { height: 240px; }
+  .csg-hero-content { padding-left: 20px; gap: 16px; }
+  .csg-hero-dots { left: 20px; }
+  .csg-promo-strip { flex-wrap: wrap; width: 100%; border-radius: 24px; margin-top: 12px; }
+  .csg-promo-card { flex: 1 1 calc(50% - 4px); }
+  .csg-game-grid { grid-template-columns: repeat(3, 1fr); }
+  .csg-tourn-grid { grid-template-columns: 1fr; }
+  .csg-hof-layout { grid-template-columns: 1fr; }
+  .csg-wins-grid { grid-template-columns: 1fr; }
+  .csg-win-card--1 { grid-column: 1; }
+  .csg-win-amount { font-size: 32px; line-height: 38px; }
+  .csg-win-img { max-height: 76px; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
    PREVIEW CANVAS — Mobile  ≤ 768 px
    ═══════════════════════════════════════════════════════════════ */
 @media (max-width: 768px) {

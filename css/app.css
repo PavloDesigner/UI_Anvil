@@ -884,6 +884,99 @@ body {
 .tab-panel { padding: 14px 14px 10px; }
 .tab-panel--active { display: block; }
 
+/* ── Icons tab ─────────────────────────────────────────────────── */
+.icons-tab-desc {
+  font-size: 11.5px; line-height: 1.5;
+  color: oklch(55% 0.008 265);
+  margin-bottom: 10px;
+}
+.icons-tab-desc a { color: oklch(70% 0.13 250); text-decoration: none; }
+.icons-tab-desc a:hover { text-decoration: underline; }
+
+.icon-search-wrap { position: relative; margin-bottom: 8px; }
+.icon-search-ico {
+  position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+  color: oklch(48% 0.008 265); pointer-events: none;
+}
+.icon-search {
+  width: 100%; box-sizing: border-box;
+  font-family: var(--font-sans); font-size: 12.5px;
+  color: oklch(92% 0.005 265);
+  background: oklch(12% 0.006 265);
+  border: 1px solid oklch(24% 0.01 265);
+  border-radius: 8px;
+  padding: 9px 12px 9px 32px;
+  outline: none;
+  transition: border-color 150ms;
+}
+.icon-search:focus { border-color: oklch(55% 0.14 250); }
+.icon-search::placeholder { color: oklch(45% 0.008 265); }
+
+.icon-lib-count {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: oklch(45% 0.008 265);
+  margin-bottom: 8px;
+}
+.icon-lib-list {
+  display: flex; flex-direction: column; gap: 5px;
+  max-height: calc(100dvh - 320px); min-height: 200px;
+  overflow-y: auto; scrollbar-width: thin;
+  scrollbar-color: oklch(30% 0.01 265) transparent;
+  margin: 0 -4px; padding: 0 4px;
+}
+.icon-lib-card {
+  position: relative;
+  display: flex; flex-direction: column; gap: 7px;
+  text-align: left; width: 100%;
+  padding: 10px 11px;
+  background: oklch(15% 0.008 265);
+  border: 1px solid oklch(22% 0.01 265);
+  border-radius: 9px;
+  cursor: pointer; outline: none;
+  transition: border-color 150ms, background 150ms;
+}
+.icon-lib-card:hover { border-color: oklch(34% 0.01 265); background: oklch(18% 0.008 265); }
+.icon-lib-card:focus-visible { box-shadow: 0 0 0 2px oklch(15% 0.008 265), 0 0 0 4px oklch(60% 0.18 250); }
+.icon-lib-card--active { border-color: oklch(62% 0.16 250); background: oklch(20% 0.04 250); }
+
+/* Row 1 — full library name + link + check */
+.icon-lib-top { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.icon-lib-name {
+  flex: 1; min-width: 0;
+  font-size: 13px; font-weight: 700; color: oklch(96% 0.003 265);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* Row 2 — meta + sample icons */
+.icon-lib-bottom { display: flex; align-items: center; gap: 10px; }
+.icon-lib-meta { flex: 1; min-width: 0; font-size: 10.5px; color: oklch(50% 0.008 265); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.icon-lib-samples { display: flex; gap: 9px; align-items: center; flex-shrink: 0; }
+.icon-lib-sample { width: 18px; height: 18px; color: oklch(82% 0.005 265); display: inline-flex; }
+.icon-lib-sample svg { width: 100%; height: 100%; display: block; }
+.icon-lib-card--active .icon-lib-sample { color: oklch(78% 0.13 250); }
+.icon-lib-link {
+  flex-shrink: 0;
+  width: 26px; height: 26px; border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  color: oklch(55% 0.008 265);
+  background: oklch(20% 0.01 265);
+  border: 1px solid oklch(26% 0.01 265);
+  text-decoration: none; outline: none;
+  transition: color 150ms, background 150ms, border-color 150ms;
+}
+.icon-lib-link:hover { color: oklch(82% 0.005 265); background: oklch(26% 0.01 265); border-color: oklch(36% 0.01 265); }
+.icon-lib-link:focus-visible { box-shadow: 0 0 0 2px oklch(15% 0.008 265), 0 0 0 4px oklch(60% 0.18 250); }
+.icon-lib-check {
+  flex-shrink: 0;
+  width: 18px; height: 18px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: oklch(62% 0.16 250); color: oklch(15% 0.02 250);
+  opacity: 0; transform: scale(0.6); margin-left: 2px;
+  transition: opacity 150ms, transform 150ms;
+}
+.icon-lib-card--active .icon-lib-check { opacity: 1; transform: scale(1); }
+
 /* Palette sections (used in merged Colors tab) */
 .palette-section { }
 .palette-section + .palette-section {

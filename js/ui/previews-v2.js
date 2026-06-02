@@ -4,6 +4,7 @@ import { icon } from '../icons.js';
 import { subscribe, getState } from '../state.js';
 import { getTypography, subscribeTypography } from '../typography-state.js';
 import { buildScaleData, buildTypographyCSS, SCALE_METHODS } from '../generators/type-scale.js';
+import { iconSvg as svgIcon, subscribeIcon, iconInner } from '../icon-state.js';
 
 const PREVIEWS = { ui: marketing, forms, components, typography: typographyPreview };
 let currentTab = 'ui';
@@ -44,6 +45,11 @@ export function initPreviews() {
   subscribe('theme-change',   render);
   subscribe('init',           () => render(true));
   subscribeTypography(() => render());
+  // Re-run contrast pass on color changes even when the DOM isn't rebuilt
+  subscribe('palette-change', () => { if (currentTab === 'ui') requestAnimationFrame(csgContrastPass); });
+  subscribe('theme-change',   () => { if (currentTab === 'ui') requestAnimationFrame(csgContrastPass); });
+  // Swap icons in place when the library changes — no full rebuild / no flash
+  subscribeIcon(() => { if (currentTab === 'ui') swapCasinoIcons(); });
   render(true);
 }
 
@@ -66,7 +72,19 @@ function render(force = false) {
   canvasEl.innerHTML = '';
   const state = getState();
   const fn = PREVIEWS[currentTab];
-  if (fn) canvasEl.appendChild(fn(state));
+  if (fn) {
+    canvasEl.appendChild(fn(state));
+    if (currentTab === 'ui') requestAnimationFrame(csgContrastPass);
+  }
+}
+
+/* Swap every casino icon's inner SVG to the current library — in place, so
+   changing the icon set never rebuilds the DOM (no flash, no re-animation) */
+function swapCasinoIcons() {
+  if (!canvasEl) return;
+  canvasEl.querySelectorAll('.csg-svg[data-icon]').forEach(el => {
+    el.innerHTML = iconInner(el.dataset.icon);
+  });
 }
 
 /* ─── Dashboard ─── */
@@ -306,8 +324,344 @@ function buildMktDonut(hasS, hasT) {
   return { svg, legendItems };
 }
 
-/* ─── Marketing ─── */
+/* ─── Marketing — Casino UI (KUSH design) ─── */
+
+const _CSG_BASE = 'assets/casino';
+const _CSG = {
+  // ── Scene images (saved locally — no Figma dependency) ──────────
+  banner:  `${_CSG_BASE}/banner-art.png`,
+  gameCards: [
+    `${_CSG_BASE}/game1.png`, `${_CSG_BASE}/game2.png`, `${_CSG_BASE}/game3.png`,
+    `${_CSG_BASE}/game4.png`, `${_CSG_BASE}/game5.png`, `${_CSG_BASE}/game6.png`,
+  ],
+  small: [
+    `${_CSG_BASE}/small1.png`, `${_CSG_BASE}/small2.png`, `${_CSG_BASE}/small3.png`,
+    `${_CSG_BASE}/small4.png`, `${_CSG_BASE}/small5.png`,
+  ],
+  t1:  `${_CSG_BASE}/tourn1.png`,
+  t2:  `${_CSG_BASE}/tourn2.svg`,
+  w1:  `${_CSG_BASE}/win1.png`,
+  w2:  `${_CSG_BASE}/win2.png`,
+  w3:  `${_CSG_BASE}/win3.png`,
+  promo: [
+    `${_CSG_BASE}/promo1.png`, `${_CSG_BASE}/promo2.png`,
+    `${_CSG_BASE}/promo3.png`, `${_CSG_BASE}/promo4.png`,
+  ],
+  provLogo: `${_CSG_BASE}/provider.png`,
+};
+
+/* ─── Contrast-aware coloring ───────────────────────────────────────────────
+   Reads each element's *actual* background and picks a foreground variant that
+   reads cleanly: money → the best-contrast Success shade; generic fg → light
+   or dark neutral. Re-runs on every palette change. */
+function _csgRelLum([r, g, b]) {
+  const f = c => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+  return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+}
+function _csgContrast(a, b) {
+  const l1 = _csgRelLum(a), l2 = _csgRelLum(b);
+  return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+}
+function _csgParse(str) {
+  if (!str) return null;
+  if (str[0] === '#') {
+    let h = str.slice(1);
+    if (h.length === 3) h = h.split('').map(c => c + c).join('');
+    return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+  }
+  const m = str.match(/[\d.]+/g);
+  return m ? m.slice(0, 3).map(Number) : null;
+}
+function _csgEffectiveBg(el) {
+  let n = el;
+  while (n && n.nodeType === 1) {
+    const c = getComputedStyle(n).backgroundColor;
+    if (c && !/rgba?\([^)]*,\s*0\)\s*$/.test(c) && c !== 'transparent') {
+      const p = _csgParse(c);
+      if (p) return p;
+    }
+    n = n.parentElement;
+  }
+  return [18, 18, 18];
+}
+function csgContrastPass() {
+  const canvas = document.getElementById('preview-canvas');
+  if (!canvas || !canvas.querySelector('.csg-root')) return;
+  const root = getComputedStyle(document.documentElement);
+  const v = name => root.getPropertyValue(name).trim();
+
+  // Success shades (light → dark) — pick whichever reads best on the bg
+  const successCands = ['--color-success-300', '--color-success-500', '--color-success-700', '--color-success-800']
+    .map(v).map(_csgParse).filter(Boolean);
+  const white = _csgParse(v('--neutral-white')) || [255, 255, 255];
+  const dark  = _csgParse(v('--text-dark')) || _csgParse(v('--color-neutral-900')) || [29, 29, 29];
+
+  canvas.querySelectorAll('.csg-money').forEach(el => {
+    const bg = _csgEffectiveBg(el);
+    let best = successCands[0] || [57, 211, 112], bestC = -1;
+    successCands.forEach(c => { const cr = _csgContrast(c, bg); if (cr > bestC) { bestC = cr; best = c; } });
+    el.style.color = `rgb(${best.join(',')})`;
+  });
+
+  canvas.querySelectorAll('.csg-fg').forEach(el => {
+    const bg = _csgEffectiveBg(el);
+    const useWhite = _csgContrast(white, bg) >= _csgContrast(dark, bg);
+    el.style.color = `rgb(${(useWhite ? white : dark).join(',')})`;
+  });
+}
+
+let _csgEntered = false;   // entrance animation plays once per session
+
 function marketing(state = {}) {
+  const root = div('csg-root');
+  if (!_csgEntered) { root.classList.add('csg-enter'); _csgEntered = true; }
+  const I = _CSG;
+
+  const catTabs = [
+    { label: 'Горящие', icon: 'flame',    tint: 'csg-ic--error'   },
+    { label: 'Новые',   icon: 'sparkles', tint: 'csg-ic--success', active: true },
+    { label: 'Топ',     icon: 'trophy',   tint: 'csg-ic--warning' },
+    { label: 'Слоты',   icon: 'grid',     tint: 'csg-ic--info'    },
+    { label: 'Лайв',    icon: 'live',     tint: 'csg-ic--error'   },
+    { label: 'Краш',    icon: 'bolt',     tint: 'csg-ic--accent'  },
+    { label: 'Отыгрыш', icon: 'target',   tint: 'csg-ic--accent2' },
+    { label: 'Джекпот', icon: 'gem',      tint: 'csg-ic--accent3' },
+  ];
+
+  const promoCards = [
+    { label: 'Магазин бонусов',  active: false },
+    { label: 'Колесо фортуны',   active: true  },
+    { label: 'Кешбек до 20%',    active: false },
+    { label: 'Крупные Турниры',  active: false },
+  ];
+
+  const oddGames = [
+    { name: 'Crank it up',        user: 'Luxury boy' },
+    { name: 'Sweet Bonanza 1000', user: 'Luxury boy' },
+    { name: 'Le Pharaoh',         user: 'Luxury boy' },
+    { name: '3 Coins Volcanoes',  user: 'Luxury boy' },
+    { name: 'Gates of Olympous',  user: 'Luxury boy' },
+  ];
+
+  const smallAll = [...I.small, ...I.small].slice(0, 10);
+
+  root.innerHTML = `
+
+  <!-- ══ Hero (h=420px, br=24px) ══════════════════════════════════ -->
+  <div class="csg-hero">
+    <div class="csg-hero-glow"></div>
+    <img class="csg-hero-art" src="${I.banner}" alt="" loading="lazy">
+    <div class="csg-hero-content">
+      <div class="csg-hero-text">
+        <h1 class="csg-hero-title">900ФС +225%</h1>
+        <p class="csg-hero-sub">Регистрируйся сейчас и получай максимум выгоды!</p>
+      </div>
+      <button class="csg-cta-btn csg-fg">ЗАБРАТЬ БОНУС</button>
+      <div class="csg-hero-dots">
+        <span class="csg-dot csg-dot--active"></span>
+        <span class="csg-dot"></span>
+        <span class="csg-dot"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ Promo info cards (rounded-tl-40 rounded-tr-40, p=8px) ═══ -->
+  <div class="csg-promo-strip">
+    ${promoCards.map((c, i) => `
+      <button class="csg-promo-card csg-fg${c.active ? ' csg-promo-card--active' : ''}">
+        <img src="${I.promo[i]}" alt="${c.label}" class="csg-promo-img" loading="lazy">
+        <span class="csg-promo-label">${c.label}</span>
+        ${svgIcon('chevronR')}
+      </button>
+    `).join('')}
+  </div>
+
+  <!-- ══ Category tabs (px=16 py=8, br=64px, fs=16px) ═══════════ -->
+  <div class="csg-cat-row">
+    ${catTabs.map(t => `
+      <button class="csg-cat-tab${t.active ? ' csg-cat-tab--active' : ''}">
+        ${svgIcon(t.icon, t.tint)}
+        ${t.label}
+      </button>
+    `).join('')}
+  </div>
+
+  <!-- ══ New Games (section icon=24px, title fs=20px Unbounded) ══ -->
+  <div class="csg-section">
+    <div class="csg-sec-hdr">
+      <div class="csg-sec-hdr-left">
+        ${svgIcon('sparkles', 'csg-ic--success')}
+        <h2 class="csg-sec-title">Новые</h2>
+      </div>
+      <div class="csg-sec-hdr-right">
+        <button class="csg-see-all">Смотреть все <span class="csg-count-pill">25</span></button>
+        <button class="csg-nav-btn csg-fg">${svgIcon('chevronL')}</button>
+        <button class="csg-nav-btn csg-fg">${svgIcon('chevronR')}</button>
+      </div>
+    </div>
+    <div class="csg-divider"></div>
+    <!-- game cards: w=200px h=220px br=16px border=2px solid -->
+    <div class="csg-game-grid">
+      ${I.gameCards.map((src, i) => `
+        <div class="csg-game-card${i === 0 ? ' csg-game-card--hot' : ''}" style="--csg-i:${i}">
+          <img src="${src}" alt="Game ${i + 1}" loading="lazy">
+          <div class="csg-game-badge csg-fg">${svgIcon('trophy')}</div>
+          <div class="csg-game-play csg-fg">${svgIcon('play')}</div>
+        </div>
+      `).join('')}
+    </div>
+  </div>
+
+  <!-- ══ Live wins ticker (chips: h=48 w=140 br=999, avatar 40px) ══ -->
+  <div class="csg-section">
+    <div class="csg-sec-hdr">
+      <div class="csg-sec-hdr-left">
+        <span class="csg-live-dot"></span>
+        <h2 class="csg-sec-title">Живые выигрыши</h2>
+      </div>
+    </div>
+    <div class="csg-livewins">
+      <div class="csg-livewins-track">
+        ${[...smallAll, ...smallAll].map((src, i) => `
+          <div class="csg-win-chip">
+            <img class="csg-win-chip-av" src="${src}" alt="" loading="lazy">
+            <div class="csg-win-chip-info">
+              <span class="csg-win-chip-game">Chicago Gold</span>
+              <span class="csg-win-chip-amt csg-money">+324 ₽</span>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="csg-livewins-fade"></div>
+    </div>
+  </div>
+
+  <!-- ══ Tournaments (h=262px, br=16px, prize fs=32px green) ═════ -->
+  <div class="csg-section">
+    <div class="csg-sec-hdr">
+      <div class="csg-sec-hdr-left">
+        ${svgIcon('trophy', 'csg-ic--accent')}
+        <h2 class="csg-sec-title">Турниры</h2>
+      </div>
+      <div class="csg-sec-hdr-right">
+        <button class="csg-see-all">Смотреть все <span class="csg-count-pill">2</span></button>
+      </div>
+    </div>
+    <div class="csg-divider"></div>
+    <div class="csg-tourn-grid">
+      ${[I.t1, I.t2].map((src, i) => `
+        <div class="csg-tourn-card${i === 1 ? ' csg-tourn-card--alt' : ''}">
+          <div class="csg-tourn-bg" style="background-image:url('${src}')"></div>
+          <div class="csg-tourn-overlay"></div>
+          <div class="csg-tourn-content">
+            <div class="csg-tourn-top">
+              <div class="csg-tourn-prize csg-money">500,000 ₽</div>
+              <div class="csg-tourn-name">Бабкины бабки</div>
+            </div>
+            <!-- timer: each box 64×48px, br=16px, bg=#272727, border=#373737 -->
+            <div class="csg-timer">
+              <div class="csg-tbox"><span class="csg-tval">05</span><span class="csg-tlbl">дней</span></div>
+              <span class="csg-tsep">:</span>
+              <div class="csg-tbox"><span class="csg-tval">18</span><span class="csg-tlbl">часов</span></div>
+              <span class="csg-tsep">:</span>
+              <div class="csg-tbox"><span class="csg-tval">45</span><span class="csg-tlbl">минут</span></div>
+            </div>
+            <button class="csg-cta-btn csg-cta-btn--sm csg-fg">УЧАСТВОВАТЬ</button>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  </div>
+
+  <!-- ══ Hall of Fame ══════════════════════════════════════════════ -->
+  <div class="csg-section">
+    <div class="csg-sec-hdr">
+      <div class="csg-sec-hdr-left">
+        ${svgIcon('award', 'csg-ic--accent')}
+        <h2 class="csg-sec-title">Зал славы</h2>
+      </div>
+    </div>
+    <div class="csg-divider"></div>
+    <div class="csg-hof-layout">
+
+      <!-- Left: Top wins — grid 2-col, row-1=240px featured, row-2=auto -->
+      <div class="csg-hof-wins">
+        <p class="csg-hof-col-title">Топ выигрыши</p>
+        <div class="csg-wins-grid">
+          <!-- featured rank-1: full-width, bg=action-active, border=primary-hover, shadow -->
+          <div class="csg-win-card csg-win-card--1">
+            <img class="csg-win-img" src="${I.w1}" alt="" loading="lazy">
+            <div class="csg-win-info">
+              <div class="csg-win-amount csg-money">24,642.57 ₽</div>
+              <div class="csg-win-game csg-fg">RIP CITY</div>
+              <div class="csg-win-provider">
+                <div class="csg-provider-chip">
+                  <img src="${I.provLogo}" alt="" class="csg-prov-logo" loading="lazy"> Nolimit City
+                </div>
+              </div>
+            </div>
+            <div class="csg-rank-badge csg-rank-badge--1 csg-fg">1</div>
+          </div>
+          <!-- rank-2: bg=action, border=primary -->
+          <div class="csg-win-card csg-win-card--2">
+            <img class="csg-win-img" src="${I.w2}" alt="" loading="lazy">
+            <div class="csg-win-info">
+              <div class="csg-win-amount csg-win-amount--sm csg-money">24,642.57 ₽</div>
+              <div class="csg-win-game csg-win-game--sm csg-fg">Big Bass Bonanza</div>
+              <div class="csg-win-provider">
+                <div class="csg-provider-chip"><span class="csg-prov-text">pp</span> Pragmatic Play</div>
+              </div>
+            </div>
+            <div class="csg-rank-badge csg-rank-badge--2 csg-fg">2</div>
+          </div>
+          <!-- rank-3: bg=tertiary, border=default -->
+          <div class="csg-win-card csg-win-card--3">
+            <img class="csg-win-img" src="${I.w3}" alt="" loading="lazy">
+            <div class="csg-win-info">
+              <div class="csg-win-amount csg-win-amount--sm csg-money">24,642.57 ₽</div>
+              <div class="csg-win-game csg-win-game--sm csg-fg">Mental</div>
+              <div class="csg-win-provider">
+                <div class="csg-provider-chip">
+                  <img src="${I.provLogo}" alt="" class="csg-prov-logo" loading="lazy"> Nolimit City
+                </div>
+              </div>
+            </div>
+            <div class="csg-rank-badge csg-rank-badge--3 csg-fg">3</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Top odds — each row is a card (bg=#1d1d1d, p=8px, br=16px) -->
+      <div class="csg-hof-odds">
+        <p class="csg-hof-col-title">Топ коэффициенты</p>
+        <div class="csg-odds-list">
+          ${oddGames.map((g, i) => `
+            <div class="csg-odds-card">
+              <img class="csg-odds-img" src="${I.small[i % I.small.length]}" alt="" loading="lazy">
+              <div class="csg-odds-meta">
+                <span class="csg-odds-name">${g.name}</span>
+                <span class="csg-odds-user">${g.user}</span>
+              </div>
+              <div class="csg-odds-right">
+                <span class="csg-odds-total csg-money">24,642.57 ₽</span>
+                <div class="csg-odds-detail">
+                  <span class="csg-odds-bet csg-money">20.00 ₽</span>
+                  <span class="csg-odds-mult csg-fg">×20.00</span>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+    </div>
+  </div>`;
+
+  return root;
+}
+
+/* ─── OLD marketing helpers (unused after replacement) ─── */
+function _unusedMarketing(state = {}) {
   const hasS = !!state.showSecondaryBrand;
   const hasT = !!state.showTertiaryBrand;
   const root = div('');

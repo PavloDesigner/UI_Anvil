@@ -177,10 +177,9 @@ function _wireTabSwitch() {
   if (!colorsFooter || !fontsFooter) return;
 
   function update() {
-    const onFonts = document.querySelector('[data-tab="fonts"]')?.classList.contains('tab--active') ||
-                    document.querySelector('[data-tab="fonts"]')?.getAttribute('aria-selected') === 'true';
-    colorsFooter.style.display = onFonts ? 'none' : '';
-    fontsFooter.style.display  = onFonts ? ''     : 'none';
+    const active = document.querySelector('.tab.tab--active')?.dataset.tab;
+    colorsFooter.style.display = active === 'brand' ? '' : 'none';
+    fontsFooter.style.display  = active === 'fonts' ? '' : 'none';
   }
 
   /* Listen for tab clicks */
